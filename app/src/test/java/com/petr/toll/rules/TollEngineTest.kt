@@ -56,8 +56,27 @@ class TollEngineTest {
         assertNull(sim.d.gate)
         sim.waitMin(30)
         assertEquals(min(30), sim.paid)
-        assertTrue(sim.d.showTimer)
+        assertFalse("no timer under half the limit", sim.d.showTimer)
         assertEquals(1, sim.state.opensToday)
+    }
+
+    @Test fun theTimerAppearsAtHalfTheLimitButNotDuringAQuickPass() {
+        val sim = sim(at(monday, 10))
+        sim.screen(ScreenKind.PAID)
+        sim.waitMin(89)
+        assertFalse(sim.d.showTimer)
+        sim.waitMin(1)
+        assertTrue(sim.d.showTimer)
+
+        sim.screen(ScreenKind.FREE)
+        assertFalse("never in chats or stories", sim.d.showTimer)
+
+        sim.screen(ScreenKind.OUTSIDE)
+        sim.waitMin(30)
+        sim.quickPass()
+        sim.screen(ScreenKind.PAID)
+        assertFalse(sim.d.showTimer)
+        assertNotNull(sim.d.quickPassLeft)
     }
 
     @Test fun chatsAndStoriesDontCount() {

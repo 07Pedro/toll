@@ -45,7 +45,7 @@ Petr spends 3–5 h/day on Instagram on weekdays and up to 8 h/day on weekends. 
 
   | Share of limit | What happens |
   |---|---|
-  | < 50% | Opens normally; a small corner timer shows today's paid minutes. |
+  | < 50% | Opens normally. No timer yet. |
   | 50–75% | Before each paid entry, type a sentence exactly (no paste), e.g. "Opening Instagram for the 14th time today." |
   | 75–100% | Before each paid entry, type a longer sentence that also says how long you've spent today ("… I have already spent 2 hours and 20 minutes on it."). While inside, Instagram is greyscale and a full-screen "Still here?" interrupts every 5 min of paid time. |
   | > 100% | Each 10-min pass costs a QR-code scan (code stuck somewhere in another room) **plus** holding a thumb on a slowly moving dot. The hold doubles with each pass that day, **capped at 30 min**: 1, 2, 4, 8, 16, 30, 30… The cap keeps the "never a hard lock" promise, since uncapped doubling reaches 64 and 128 min by pass 7–8. |
@@ -76,7 +76,7 @@ Petr spends 3–5 h/day on Instagram on weekdays and up to 8 h/day on weekends. 
 1. **Onboarding:** what Toll does → grant permissions → set week-1 limits (defaults 3 h / 5 h) and the floor → print or show the QR code to stick up somewhere.
 2. **Gate** (shown over Instagram when it lands on a paid screen): today's paid minutes and open count, what this entry costs, what the next one will cost. Buttons: **Messages (free)**, **Stories (free)**, **Pay toll**, **Leave**. Stories needs its own button because the stories tray sits on top of the home feed, which is paid. Toll opens the first story in the tray for you; leaving the story viewer lands back on the gate.
 3. **Toll challenges:** typing a sentence; thumb hold on a moving dot with a countdown; QR scan.
-4. **Corner timer:** small, always visible on paid screens.
+4. **Timer** (Petr's decision, 2026-10-05): a small, circular, translucent dial in the **top-left** of the screen, on paid and unrecognised screens, **only from 50% of the daily limit**. It shows today's paid time against the limit. It never takes touches. During a quick pass, the quick-pass countdown takes its place.
 5. **"Still here?" interrupt.**
 6. **Toll home:** a big **Quick pass** button showing how many are left today ("3 left today"), then today (paid minutes, opens, current tier), this week's limit, a week-by-week trend.
 7. **Settings:** limits, floor, taper rate; pending loosening changes with their countdown; the "turn Toll off" request and its countdown.
@@ -93,8 +93,7 @@ Other apps, iOS, the Play Store, multiple users, friends or accountability featu
 Paid Instagram minutes **on the phone** go down week over week roughly in line with the limit, and Petr still has Toll installed after 2 weeks. (Toll can't see Instagram on other devices.)
 
 ### Open questions
-1. **Corner timer:** always visible on paid screens, or only from 50% of the limit? Asked Petr on 2026-10-04, no answer yet.
-2. **Version control:** set up git and make a first commit before Phase 1? Nothing is under version control yet. Ask Petr on 2026-10-05.
+None right now. Answered 2026-10-05: the timer shows only from 50% (top-left, small, circular, translucent); git approved and set up (local repo, first commit `5fdc3df`).
 
 ### Product UI so far (Phase 0)
 - Theme in `ui/TollTheme.kt`: concrete greys, barrier red (paid, brand), go green (free), signal amber (attention), Overpass font (motorway-sign lettering), barrier-stripe motif. The app icon is a T whose crossbar is a striped barrier arm.

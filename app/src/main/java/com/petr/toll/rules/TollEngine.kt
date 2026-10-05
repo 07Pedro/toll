@@ -94,7 +94,7 @@ data class Decision(
     val gate: Gate?,
     val stillHere: Boolean,
     val greyscale: Boolean,
-    /** Show the corner timer (paid and unrecognised screens). */
+    /** Show the timer dial: paid and unrecognised screens, from 50% of the limit, not during a quick pass. */
     val showTimer: Boolean,
     /** Non-null while a quick pass runs: show this countdown instead of the timer. */
     val quickPassLeft: Duration?,
@@ -147,7 +147,8 @@ class TollEngine(private val zone: ZoneId) {
             gate = gate,
             stillHere = gate == null && stillHereShowing(state, at),
             greyscale = inside && !quickPass && tier >= Tier.GREY,
-            showTimer = inside && (state.screen == ScreenKind.PAID || state.screen == ScreenKind.UNKNOWN),
+            showTimer = inside && !quickPass && tier >= Tier.TYPING &&
+                (state.screen == ScreenKind.PAID || state.screen == ScreenKind.UNKNOWN),
             quickPassLeft = state.quickPassUntil?.takeIf { quickPass }?.let { Duration.between(at, it) },
             quickPassesLeft = (settings.quickPassesPerDay - state.quickPassesUsedToday).coerceAtLeast(0),
             passLeft = visit?.passBudget,
