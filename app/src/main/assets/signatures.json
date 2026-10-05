@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "instagramVersion": "449.0.0.52.84",
-  "notes": "Checked against Petr's Phase 0 dumps (2026-10-04) for feed, Reels tab, Explore, search, story viewer, profiles, DM inbox, DM thread, comments sheet and a reel or post opened from Explore or a DM. post_detail is still a guess. Rules are tried top to bottom and the first match wins. Order matters for speed too: DM thread and story first (DMs must win), then the bottom tabs (one 'tabBarId' lookup skips them all when the tab bar is hidden, as it is over stories, threads and opened reels). View IDs in rules and itemKeyIds are EXACT entry names (each is one accessibility lookup on the phone): in 'ids', every inner list needs a visible node with one of its IDs; 'tabIds' is the selected bottom tab. Navigation IDs are still fragments (the free shortcuts search the tree).",
+  "notes": "Checked against Petr's Phase 0 dumps (2026-10-04) for feed, Reels tab, Explore, search, story viewer, profiles, DM inbox, DM thread, comments sheet and a reel or post opened from Explore or a DM. Saved (collections, a collection's grid) and post lists opened from Saved or a profile were added from the 2026-10-05 walkthrough; post lists always have layout_listview_parent_container, the home feed never does. Rules are tried top to bottom and the first match wins. Order matters for speed too: DM thread and story first (DMs must win), then the bottom tabs (one 'tabBarId' lookup skips them all when the tab bar is hidden, as it is over stories, threads and opened reels). View IDs in rules and itemKeyIds are EXACT entry names (each is one accessibility lookup on the phone): in 'ids', every inner list needs a visible node with one of its IDs; 'tabIds' is the selected bottom tab. Navigation IDs are still fragments (the free shortcuts search the tree).",
   "tabBarId": "tab_bar",
   "rules": [
     {"id": "dm_thread_composer", "screen": "DM_THREAD", "ids": [["row_thread_composer_edittext", "direct_thread_header"]]},
@@ -14,13 +14,15 @@
     {"id": "comments_sheet", "screen": "COMMENTS", "ids": [["layout_comment_thread_edittext_multiline", "layout_comment_thread_edittext"], ["bottom_sheet_container"]]},
     {"id": "reels_viewer", "screen": "REELS_VIEWER", "ids": [["clips_viewer_view_pager", "clips_viewer_container", "clips_video_container"]]},
     {"id": "dm_inbox_list", "screen": "DM_INBOX", "ids": [["inbox_refreshable_thread_list_recyclerview", "direct_inbox_action_bar"]]},
+    {"id": "saved_collections", "screen": "SAVED", "ids": [["saved_view_pager", "collections_list", "saved_content_container"]]},
+    {"id": "saved_grid", "screen": "SAVED", "ids": [["save_collection_viewpager", "save_collection_tab_layout"]]},
     {"id": "profile_header", "screen": "PROFILE", "ids": [["profile_header_container", "profile_header_actions_top_row", "profile_tabs_container"]]},
-    {"id": "post_detail", "screen": "POST", "ids": [["row_feed_photo_profile_name", "row_feed_profile_header", "row_feed_button_like"], ["action_bar_button_back"]]},
+    {"id": "post_detail", "screen": "POST", "ids": [["row_feed_photo_profile_name", "row_feed_profile_header", "row_feed_button_like"], ["action_bar_button_back", "layout_listview_parent_container"]]},
     {"id": "search_results", "screen": "SEARCH", "ids": [["row_search_user_container", "row_search_keyword_title"]]},
     {"id": "explore_grid", "screen": "EXPLORE", "ids": [["explore_action_bar"]]},
     {"id": "feed_rows", "screen": "FEED", "ids": [["row_feed_photo_profile_name", "row_feed_button_like", "row_feed_profile_header"]]}
   ],
-  "itemKeyIds": ["clips_author_username", "clips_caption_component", "row_feed_photo_profile_name"],
+  "itemKeyIds": ["clips_author_username", "clips_caption_component", "row_feed_photo_profile_name", "row_feed_profile_header"],
   "navigation": {
     "dmButton": {
       "ids": [

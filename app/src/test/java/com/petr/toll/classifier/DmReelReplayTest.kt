@@ -7,7 +7,10 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import java.io.File
 
-/** Replays the re-check round on Instagram 449: DM thread → reel from the chat → swipe → back → post from the chat. */
+/**
+ * Replays walkthroughs on Instagram 449: a reel from a chat and the swipe onward (2026-10-04), and a saved item or a
+ * friend's post and the scroll onward (2026-10-05).
+ */
 class DmReelReplayTest {
     private val classifier = ScreenClassifier(Signatures.parse(File("src/main/assets/signatures.json").readText()))
 
@@ -42,6 +45,23 @@ class DmReelReplayTest {
         val next = classifier.itemKey(fixture("REELS_VIEWER/ig449_dm_reel_after_swipe"))
         assertNotEquals(null, opened)
         assertNotEquals(opened, next)
+    }
+
+    @Test
+    fun `saved item is free, scrolling on to the next is paid`() {
+        val tracker = OriginTracker()
+        assertEquals(Access.FREE, tracker.see("SAVED/ig449_saved_collections"))
+        assertEquals(Access.FREE, tracker.see("SAVED/ig449_saved_collection_grid"))
+        assertEquals(Access.FREE, tracker.see("POST/ig449_saved_item_opened"))
+        assertEquals(Access.PAID, tracker.see("POST/ig449_saved_list_scrolled_on"))
+    }
+
+    @Test
+    fun `post from a friend's profile is free, scrolling on is paid`() {
+        val tracker = OriginTracker()
+        assertEquals(Access.FREE, tracker.see("PROFILE/ig449_friend_profile"))
+        assertEquals(Access.FREE, tracker.see("POST/ig449_profile_post_opened"))
+        assertEquals(Access.PAID, tracker.see("POST/ig449_profile_post_scrolled_on"))
     }
 
     @Test

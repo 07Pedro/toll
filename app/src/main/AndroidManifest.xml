@@ -8,6 +8,9 @@
         android:name="android.permission.INTERNET"
         tools:node="remove" />
 
+    <!-- Earn time: the step counter needs this runtime permission (asked from the home screen's Earn time card). -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+
     <!-- Package visibility: read Instagram's version and (Phase 1) launch it for a quick pass. -->
     <queries>
         <package android:name="com.instagram.android" />
@@ -40,6 +43,13 @@
             android:taskAffinity=""
             android:theme="@android:style/Theme.Material.NoActionBar"
             android:windowSoftInputMode="adjustResize|stateVisible" />
+
+        <!-- Earn time: 20 push-ups counted with the proximity sensor. -->
+        <activity
+            android:name=".ui.earn.PushupActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Material.NoActionBar" />
 
         <service
             android:name=".service.TollAccessibilityService"
