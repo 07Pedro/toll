@@ -1,6 +1,6 @@
 # Toll — plan
 
-Status (end of 2026-10-05): Phase 1 (gate, typing, holds, Still here?, timer, quick pass, weekly taper, 24 h rule, home, settings) and earn time (push-ups, walking, Duolingo) are built, tested (115 tests) and installed on Petr's Pixel. Toll is NOT started yet: Petr plans to tap "Start week 1 today" on 2026-10-06. The rehearsal idea is parked. Phase 2 next: greyscale, barcode pass, self-protection, Instagram Lite.
+Status (end of 2026-10-05): Phase 1, earn time, and the 24 h turn-off are built, tested (124 tests) and installed on Petr's Pixel. Toll is NOT started. Next (2026-10-06): Tech writes the guard rules from Petr's capture of the 4 Android pages, then Petr taps Start and does a 1-minute guard check (Settings → Accessibility → Toll should show "Toll is protected"). Phase 2 after that: greyscale, barcode pass, Instagram Lite.
 Toll is an Android app that makes Instagram more expensive to use the more you use it, while messages with friends stay free.
 
 Split: **Product** (features, screens, flows, v1 scope) is written by the session talking with Petr. **Tech** (stack, data model, services, costs, risks) is written by session petr-c6. Each reviews the other's half.
