@@ -17,6 +17,9 @@ interface ScreenQuery {
 
     /** Non-empty texts (or else descriptions) of the visible nodes with this ID. */
     fun texts(viewId: String): List<String>
+
+    /** Whether a visible node's text or description equals [text] (ignoring case and surrounding spaces). */
+    fun hasText(text: String): Boolean
 }
 
 class SnapshotQuery(private val snapshot: ScreenSnapshot) : ScreenQuery {
@@ -32,4 +35,8 @@ class SnapshotQuery(private val snapshot: ScreenSnapshot) : ScreenQuery {
 
     override fun texts(viewId: String): List<String> =
         visible[viewId].orEmpty().mapNotNull { (it.text ?: it.desc)?.trim()?.takeIf(String::isNotEmpty) }
+
+    override fun hasText(text: String): Boolean = snapshot.root.walk().any { node ->
+        node.visible && (node.text?.trim().equals(text, ignoreCase = true) || node.desc?.trim().equals(text, ignoreCase = true))
+    }
 }

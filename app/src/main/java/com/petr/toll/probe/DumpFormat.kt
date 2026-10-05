@@ -49,8 +49,14 @@ object DumpFormat {
         ignoreUnknownKeys = true
     }
 
-    fun create(snapshot: ScreenSnapshot, classification: Classification, instagramVersion: String?, savedAt: String): DumpFile {
-        val strict = Redactor.isStrict(classification.screen, snapshot.root)
+    /** [strict] overrides the redaction choice, e.g. false for Settings screens, which hold no messages. */
+    fun create(
+        snapshot: ScreenSnapshot,
+        classification: Classification,
+        instagramVersion: String?,
+        savedAt: String,
+        strict: Boolean = Redactor.isStrict(classification.screen, snapshot.root),
+    ): DumpFile {
         return DumpFile(
             savedAt = savedAt,
             instagramVersion = instagramVersion,

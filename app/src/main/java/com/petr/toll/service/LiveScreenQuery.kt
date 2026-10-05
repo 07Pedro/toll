@@ -27,4 +27,12 @@ class LiveScreenQuery(private val root: AccessibilityNodeInfo, override val wind
 
     override fun texts(viewId: String): List<String> =
         visible(viewId).mapNotNull { (it.text ?: it.contentDescription)?.toString()?.trim()?.takeIf(String::isNotEmpty) }
+
+    /** One `findAccessibilityNodeInfosByText` call (a substring search in the app's process), then an exact check. */
+    override fun hasText(text: String): Boolean =
+        root.findAccessibilityNodeInfosByText(text).any { node ->
+            node.isVisibleToUser &&
+                (node.text?.toString()?.trim().equals(text, ignoreCase = true) ||
+                    node.contentDescription?.toString()?.trim().equals(text, ignoreCase = true))
+        }
 }

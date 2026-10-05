@@ -18,6 +18,9 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
 import com.petr.toll.classifier.Access
 import com.petr.toll.classifier.Classification
+import com.petr.toll.classifier.GuardDetector
+import com.petr.toll.classifier.GuardMatch
+import com.petr.toll.classifier.GuardPage
 import com.petr.toll.classifier.Screen
 import com.petr.toll.classifier.ScreenClassifier
 import com.petr.toll.classifier.ScreenSnapshot
@@ -33,6 +36,8 @@ import com.petr.toll.rules.Decision
 import com.petr.toll.rules.ScreenKind
 import com.petr.toll.session.SessionTracker
 import com.petr.toll.session.TollRepository
+import com.petr.toll.MainActivity
+import com.petr.toll.ui.overlay.GuardKind
 import com.petr.toll.ui.overlay.TollOverlays
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -66,12 +71,17 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
     private lateinit var repo: TollRepository
     private lateinit var classifier: ScreenClassifier
     private lateinit var navigator: Navigator
+    private lateinit var guards: GuardDetector
     private lateinit var overlays: TollOverlays
     private lateinit var probe: ProbeOverlay
     private lateinit var dumps: DumpStore
 
     @Volatile private var instagramWindowClass: String? = null
     @Volatile private var tollWindowClass: String? = null
+    @Volatile private var otherWindowClass: String? = null
+    private var lastCaptureKey: String? = null // worker thread only
+    private var lastCaptureAt = 0L // worker thread only
+    private var captures = 0 // worker thread only
     @Volatile private var lastClassification: Classification? = null
     @Volatile private var lastDecision: Decision? = null
     @Volatile private var lastTick = 0L
@@ -81,6 +91,8 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
     private var lastLogLine: String? = null // worker thread only
     private var instagramInFront = false // main thread only
     private var lastSaveAt = 0L // main thread only
+    private var guardShown: String? = null // main thread only: rule id of the guard on screen
+    private var guardAcknowledged: String? = null // main thread only: Advanced Protection notice already continued past
 
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -102,10 +114,18 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
         val signatures = Signatures.parse(assets.open("signatures.json").bufferedReader().use { it.readText() })
         classifier = ScreenClassifier(signatures)
         navigator = Navigator(signatures.navigation)
+        guards = GuardDetector(signatures.guards)
         repo = TollRepository.get(this)
         overlays = TollOverlays(this, this)
         probe = ProbeOverlay(this, this)
         dumps = DumpStore(this)
+        repo.onStopped = {
+            lastDecision = null
+            main.post {
+                overlays.hideAll()
+                updateGuard(null)
+            }
+        }
         repo.onDecision = { decision ->
             lastDecision = decision
             main.post { if (instagramInFront) overlays.render(decision) else overlays.hideAll() }
@@ -126,6 +146,7 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             if (pkg in INSTAGRAM_PACKAGES) instagramWindowClass = event.className?.toString()
             if (pkg == packageName) tollWindowClass = event.className?.toString()
+            if (pkg in GUARD_PACKAGES) otherWindowClass = event.className?.toString()
         }
         if (pkg in INSTAGRAM_PACKAGES && event.eventType == AccessibilityEvent.TYPE_VIEW_SCROLLED) logScroll(event)
         scheduleTick()
@@ -136,6 +157,7 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
     override fun onUnbind(intent: Intent?): Boolean {
         if (::repo.isInitialized) {
             repo.onDecision = null
+            repo.onStopped = null
             repo.onRefresh = null
             if (stepsListening) getSystemService(SensorManager::class.java).unregisterListener(stepListener)
             runCatching { unregisterReceiver(screenReceiver) }
@@ -166,6 +188,13 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
             lastFront = pkg
             repo.frontApp(pkg)
         }
+        if (root != null && pkg in GUARD_PACKAGES && repo.testMode.value) captureSettingsScreen(root, started)
+        val guard = if (root != null && pkg != null && pkg in GUARD_PACKAGES && repo.guarding) {
+            guards.detect(pkg, LiveScreenQuery(root, otherWindowClass))
+        } else {
+            null
+        }
+        main.post { updateGuard(guard) }
         if (root != null && pkg in INSTAGRAM_PACKAGES) {
             readInstagram(root, started)
             return
@@ -235,6 +264,46 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
         Log.i(TAG, "step counting: ${if (stepsListening) "on" else "failed"}")
     }
 
+    /**
+     * Worker thread, test mode: saves each distinct Settings or package-installer screen once, so the guard's page
+     * signatures (Toll's accessibility page, App info, the uninstall dialog, Advanced Protection) can be checked on the
+     * real phone. These screens hold no messages, so short labels are kept. At most [MAX_CAPTURES] per process.
+     */
+    private fun captureSettingsScreen(root: AccessibilityNodeInfo, started: Long) {
+        if (captures >= MAX_CAPTURES || started - lastCaptureAt < CAPTURE_GAP_MS) return
+        val snapshot = SnapshotReader.read(root, otherWindowClass)
+        val key = snapshot.root.walk().filter { it.visible }.mapNotNull { it.text ?: it.desc }.take(25).joinToString("|")
+        if (key == lastCaptureKey) return
+        lastCaptureKey = key
+        lastCaptureAt = started
+        captures++
+        val classification = Classification(Screen.UNKNOWN, "capture:${root.packageName}", null)
+        val savedAt = LocalDateTime.now().format(DumpStore.SAVED_AT)
+        val file = dumps.save(DumpFormat.create(snapshot, classification, instagramVersion(this), savedAt, strict = false))
+        Log.i(TAG, "settings screen captured: ${file.name} (${root.packageName}, ${otherWindowClass})")
+    }
+
+    /**
+     * Main thread. Shows the guard over a watched system page while Toll is on, and removes it once the page is gone.
+     * An Advanced Protection notice Petr continued past stays away until he leaves that page.
+     */
+    private fun updateGuard(match: GuardMatch?) {
+        if (match == null) {
+            if (guardShown != null) overlays.hideGuard()
+            guardShown = null
+            guardAcknowledged = null
+            return
+        }
+        if (match.ruleId == guardShown || match.ruleId == guardAcknowledged) return
+        val kind = when (match.kind) {
+            GuardPage.PROTECTED -> GuardKind.PROTECTED
+            GuardPage.ADVANCED_PROTECTION -> GuardKind.ADVANCED_PROTECTION
+        }
+        Log.i(TAG, "guard: ${match.ruleId}")
+        overlays.showGuard(kind, repo.turnOffAt)
+        guardShown = match.ruleId
+    }
+
     /** Main thread. Toll's windows only ever cover Instagram. */
     private fun showInstagramFront(front: Boolean) {
         if (front == instagramInFront) return
@@ -267,6 +336,23 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
     override fun onTollPaid() = repo.tollPaid()
 
     override fun onStillHereDismissed() = repo.stillHereDismissed()
+
+    // The guard's buttons. The overlay has already hidden itself.
+
+    override fun onGuardBack() {
+        guardShown = null
+        performGlobalAction(GLOBAL_ACTION_BACK)
+    }
+
+    override fun onGuardOpenToll() {
+        guardShown = null
+        startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    }
+
+    override fun onGuardContinue() {
+        guardAcknowledged = guardShown
+        guardShown = null
+    }
 
     // The probe panel's buttons (ProbeOverlay.Actions), test mode only.
 
@@ -401,6 +487,9 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
         private const val TAP_MS = 50L
         val INSTAGRAM_PACKAGES = setOf("com.instagram.android", "com.instagram.lite")
         private const val STEP_BATCH_US = 60_000_000 // let the sensor hub batch up to a minute of steps
+        val GUARD_PACKAGES = setOf("com.android.settings", "com.google.android.packageinstaller", "com.android.packageinstaller")
+        private const val MAX_CAPTURES = 40
+        private const val CAPTURE_GAP_MS = 1_500L
 
         fun instagramVersion(context: Context): String? = try {
             context.packageManager

@@ -2,6 +2,7 @@ package com.petr.toll.session
 
 import com.petr.toll.rules.ScreenKind
 import com.petr.toll.rules.TollEvent
+import com.petr.toll.ui.home.TurnOffState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -131,6 +132,66 @@ class TollCoreTest {
         first.steps(1_000)
         first.steps(1_600)
         assertEquals(600, core().home(serviceOn = true, stepsAllowed = true).earn.steps)
+    }
+
+    @Test
+    fun `turning off waits 24 hours, then Toll stops until turned back on`() {
+        val core = core()
+        core.start()
+        core.send(TollEvent.Screen(clock, ScreenKind.PAID))
+        assertTrue(core.requestTurnOff())
+        assertFalse(core.requestTurnOff())
+        val requested = core.turnOffState() as TurnOffState.Requested
+        assertEquals(clock.plus(Duration.ofHours(24)), requested.effectiveAt)
+        assertTrue(core.nextWakeUp()!! <= requested.effectiveAt)
+
+        advance(23 * 60)
+        assertNotNull(core.send(TollEvent.Tick(clock)))
+        assertTrue(core.enforcing)
+
+        advance(60)
+        assertNull(core.send(TollEvent.Tick(clock)))
+        assertFalse(core.enforcing)
+        assertEquals(TurnOffState.Off(requested.effectiveAt), core.turnOffState())
+        assertNull(core.send(TollEvent.Screen(clock, ScreenKind.PAID)))
+        assertFalse(core.start()) // no new Start: turning back on keeps the plan
+
+        val startDate = core.stored.settings.startDate
+        assertTrue(core.turnBackOn())
+        assertTrue(core.enforcing)
+        assertEquals(startDate, core.stored.settings.startDate)
+        assertEquals(TurnOffState.Running, core.turnOffState())
+        assertNotNull(core.send(TollEvent.Tick(clock)))
+    }
+
+    @Test
+    fun `a cancelled turn-off never happens`() {
+        val core = core()
+        core.start()
+        core.requestTurnOff()
+        assertTrue(core.cancelTurnOff())
+        advance(25 * 60)
+        assertNotNull(core.send(TollEvent.Tick(clock)))
+        assertEquals(TurnOffState.Running, core.turnOffState())
+    }
+
+    @Test
+    fun `a turn-off that fell due while the phone was off applies at startup`() {
+        val first = core()
+        first.start()
+        first.requestTurnOff()
+        advance(30 * 60)
+        val second = core()
+        assertFalse(second.enforcing)
+        assertTrue(second.turnOffState() is TurnOffState.Off)
+        assertFalse(second.home(serviceOn = true, stepsAllowed = false).enforcing)
+    }
+
+    @Test
+    fun `turning off is only possible while Toll runs`() {
+        val core = core()
+        assertFalse(core.requestTurnOff())
+        assertFalse(core.turnBackOn())
     }
 
     @Test

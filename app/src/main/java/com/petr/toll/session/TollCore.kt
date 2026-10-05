@@ -3,12 +3,14 @@ package com.petr.toll.session
 import com.petr.toll.rules.Commitments
 import com.petr.toll.rules.Decision
 import com.petr.toll.rules.Limits
+import com.petr.toll.rules.ScreenKind
 import com.petr.toll.rules.TollEngine
 import com.petr.toll.rules.TollEvent
 import com.petr.toll.rules.TollSettings
 import com.petr.toll.ui.home.DaySummary
 import com.petr.toll.ui.home.EarnState
 import com.petr.toll.ui.home.HomeState
+import com.petr.toll.ui.home.TurnOffState
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.Duration
@@ -22,7 +24,8 @@ import java.time.ZoneId
  * startup and restarts.
  * Not thread-safe: the repository calls it from one thread.
  *
- * Until [start], Toll only watches: [send] ignores every event and nothing is logged or charged.
+ * Until [start], Toll only watches: [send] ignores every event and nothing is logged or charged. The same holds after a
+ * turn-off has taken effect, until [turnBackOn].
  */
 class TollCore(
     private val zone: ZoneId,
@@ -34,10 +37,21 @@ class TollCore(
     private val settingsStore = SettingsStore(File(dir, "settings.json"))
     private val enforcingFlag = File(dir, "enforcing")
     private val stepsFile = File(dir, "steps.json")
+    private val turnOffFile = File(dir, "turn_off_requested")
+    private val offFile = File(dir, "off")
 
     var stored: StoredSettings = settingsStore.load() ?: firstRunSettings()
         private set
-    var enforcing: Boolean = enforcingFlag.exists()
+    /** When Petr asked to turn Toll off, while the 24 h wait runs. */
+    var turnOffRequestedAt: Instant? = readInstant(turnOffFile)
+        private set
+
+    /** When the turn-off took effect; Toll stays off until [turnBackOn]. */
+    var offSince: Instant? = readInstant(offFile)
+        private set
+
+    /** Started and not turned off: Toll counts, charges and guards its settings pages. */
+    var enforcing: Boolean = enforcingFlag.exists() && offSince == null
         private set
     private val session = TollSession(engine, stored.settings) { day, event -> events.append(day, event) }
 
@@ -57,11 +71,12 @@ class TollCore(
             val today = today()
             session.restore(events.read(today.minusDays(1)) + events.read(today))
         }
+        checkTurnOff(now()) // the phone may have been off when the 24 h ran out
     }
 
     /** Week 1 starts today; from now on Toll counts and charges. Returns false if it had already started. */
     fun start(): Boolean {
-        if (enforcing) return false
+        if (enforcingFlag.exists()) return false
         stored = stored.copy(settings = stored.settings.copy(startDate = today()))
         settingsStore.save(stored)
         session.updateSettings(stored.settings)
@@ -78,6 +93,7 @@ class TollCore(
     fun send(event: TollEvent): Decision? {
         if (event is TollEvent.ScreenOff) screenOn = false
         if (event is TollEvent.ScreenOn) screenOn = true
+        checkTurnOff(event.at)
         if (!enforcing) return null
         matureSettings(event.at)
         var decision = session.send(event)
@@ -103,6 +119,46 @@ class TollCore(
         return decision
     }
 
+    /** Petr asks to turn Toll off: everything keeps working for 24 h, then Toll stops. False if not possible now. */
+    fun requestTurnOff(): Boolean {
+        if (!enforcing || turnOffRequestedAt != null) return false
+        val at = now()
+        turnOffFile.writeText(at.toString())
+        turnOffRequestedAt = at
+        return true
+    }
+
+    fun cancelTurnOff(): Boolean {
+        if (turnOffRequestedAt == null) return false
+        turnOffFile.delete()
+        turnOffRequestedAt = null
+        return true
+    }
+
+    /** Back on at once, with the same plan and start date. False if Toll isn't off. */
+    fun turnBackOn(): Boolean {
+        if (offSince == null) return false
+        offFile.delete()
+        offSince = null
+        enforcing = enforcingFlag.exists()
+        return enforcing
+    }
+
+    /** Switches Toll off once the 24 h after a request are over. True if it switched just now. */
+    private fun checkTurnOff(at: Instant): Boolean {
+        val requested = turnOffRequestedAt ?: return false
+        val due = Commitments.turnOffAt(requested)
+        if (at < due) return false
+        // Close any visit at the moment Toll stops, so the log ends cleanly.
+        if (enforcing) session.send(TollEvent.Screen(due, ScreenKind.OUTSIDE))
+        offFile.writeText(due.toString())
+        offSince = due
+        turnOffFile.delete()
+        turnOffRequestedAt = null
+        enforcing = false
+        return true
+    }
+
     /** Starts a quick pass. True when a pass is running afterwards (just started or already running): open Instagram. */
     fun quickPass(): Boolean = send(TollEvent.QuickPassStarted(now()))?.quickPassLeft != null
 
@@ -118,6 +174,7 @@ class TollCore(
     fun nextWakeUp(): Instant? = listOfNotNull(
         session.decision?.nextChangeAt?.takeIf { enforcing },
         duolingo.dueAt()?.takeIf { enforcing },
+        turnOffRequestedAt?.let(Commitments::turnOffAt),
         stored.pending.minOfOrNull { it.effectiveAt },
     ).minOrNull()
 
@@ -139,7 +196,18 @@ class TollCore(
                 duolingo = if (enforcing) duolingo.progress(now()) else Duration.ZERO,
                 duolingoGoal = DUOLINGO_GOAL,
             ),
+            turnOff = turnOffState(),
         )
+    }
+
+    fun turnOffState(): TurnOffState {
+        val off = offSince
+        val requested = turnOffRequestedAt
+        return when {
+            off != null -> TurnOffState.Off(off)
+            requested != null -> TurnOffState.Requested(requested, Commitments.turnOffAt(requested))
+            else -> TurnOffState.Running
+        }
     }
 
     private fun matureSettings(at: Instant) {
@@ -163,6 +231,9 @@ class TollCore(
     }
 
     private fun today(): LocalDate = Limits.tollDay(now(), zone, stored.settings.dayStartHour)
+
+    private fun readInstant(file: File): Instant? =
+        runCatching { Instant.parse(file.readText().trim()) }.getOrNull()
 
     private fun loadSteps(): StepState =
         runCatching { json.decodeFromString(StepState.serializer(), stepsFile.readText()) }.getOrNull() ?: StepState()

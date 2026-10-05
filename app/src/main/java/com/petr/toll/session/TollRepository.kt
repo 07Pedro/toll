@@ -17,6 +17,7 @@ import com.petr.toll.rules.TollEvent
 import com.petr.toll.rules.TollSettings
 import com.petr.toll.service.TollAccessibilityService
 import com.petr.toll.ui.home.HomeState
+import com.petr.toll.ui.home.TurnOffState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
@@ -50,6 +51,22 @@ class TollRepository private constructor(context: Context) {
     /** Test mode shows the Phase 0 probe panel over Instagram (live screen label, dumps). On until switched off. */
     val testMode: StateFlow<Boolean> = testModeState
 
+    /** Called on the session thread when Toll stops charging (a turn-off took effect): hide everything over Instagram. */
+    @Volatile
+    var onStopped: (() -> Unit)? = null
+
+    /** Whether the guard should watch Toll's settings pages (Toll is on, including during a turn-off wait). */
+    @Volatile
+    var guarding: Boolean = core.enforcing
+        private set
+
+    /** When a requested turn-off takes effect, for the guard's notice. */
+    @Volatile
+    var turnOffAt: Instant? = null
+        private set
+
+    private var wasEnforcing = core.enforcing
+
     /** Called on the main thread after [refresh], e.g. so the service can start step counting once it's allowed. */
     @Volatile
     var onRefresh: (() -> Unit)? = null
@@ -59,7 +76,8 @@ class TollRepository private constructor(context: Context) {
     var onDecision: ((Decision) -> Unit)? = null
 
     init {
-        if (core.enforcing) handler.post(tick)
+        turnOffAt = (core.turnOffState() as? TurnOffState.Requested)?.effectiveAt
+        if (core.enforcing || turnOffAt != null) handler.post(tick)
     }
 
     // What the service sees. All thread-safe; they queue onto the session thread.
@@ -127,6 +145,21 @@ class TollRepository private constructor(context: Context) {
         main.post { onRefresh?.invoke() }
     }
 
+    /** Turning Toll off waits 24 h; meanwhile everything works as usual. */
+    fun requestTurnOff() = change { core.requestTurnOff() }
+
+    fun cancelTurnOff() = change { core.cancelTurnOff() }
+
+    /** Immediate; keeps the plan and the start date. */
+    fun turnBackOn() = change { core.turnBackOn() }
+
+    private fun change(action: () -> Unit) {
+        handler.post {
+            action()
+            if (core.enforcing) sendNow(TollEvent.Tick(clock.now())) else afterChange()
+        }
+    }
+
     fun setTestMode(on: Boolean) {
         handler.post {
             if (on) probeOffFlag.delete() else probeOffFlag.writeText("off")
@@ -141,12 +174,19 @@ class TollRepository private constructor(context: Context) {
     }
 
     private fun sendNow(event: TollEvent) {
-        core.send(event) ?: return
-        afterChange()
+        val decision = core.send(event)
+        if (decision != null || wasEnforcing != core.enforcing) afterChange()
     }
 
     /** Publishes the new state, tells the service, and schedules the next tick. Session thread only. */
     private fun afterChange() {
+        guarding = core.enforcing
+        turnOffAt = (core.turnOffState() as? TurnOffState.Requested)?.effectiveAt
+        if (wasEnforcing && !core.enforcing) {
+            Log.i(TAG, "Toll is off since ${core.offSince}")
+            onStopped?.invoke()
+        }
+        wasEnforcing = core.enforcing
         homeState.value = core.home(serviceOn(), stepsAllowed())
         core.decision?.takeIf { core.enforcing }?.let { onDecision?.invoke(it) }
         handler.removeCallbacks(tick)

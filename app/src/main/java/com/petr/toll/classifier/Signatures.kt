@@ -17,6 +17,8 @@ data class Signatures(
     /** View IDs whose text identifies the reel or post on screen (author, caption). Used to notice a swipe onward. */
     val itemKeyIds: List<String> = emptyList(),
     val navigation: Navigation = Navigation(),
+    /** System pages the guard watches while Toll is on (see [GuardRule]). */
+    val guards: List<GuardRule> = emptyList(),
 ) {
     init {
         val duplicate = rules.groupBy { it.id }.filterValues { it.size > 1 }.keys
