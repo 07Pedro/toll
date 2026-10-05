@@ -68,6 +68,16 @@ class CommitmentsTest {
         assertTrue(Commitments.taperIsLooser(current, Taper.Multiply(0.9)))
     }
 
+    @Test fun raisingTheEarnCapWaits24Hours() {
+        val plan = Commitments.plan(current, emptyList(), current.copy(earnCapPerDay = min(60)), now)
+        assertEquals(min(30), plan.settings.earnCapPerDay)
+        assertEquals(SettingsPatch(earnCapPerDay = min(60)), plan.pending.single().patch)
+
+        val lower = Commitments.plan(current, emptyList(), current.copy(earnPerTask = min(5)), now)
+        assertEquals(min(5), lower.settings.earnPerTask)
+        assertTrue(lower.pending.isEmpty())
+    }
+
     @Test fun turnOffTakes48Hours() {
         assertEquals(now.plus(Duration.ofHours(48)), Commitments.turnOffAt(now))
     }

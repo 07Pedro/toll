@@ -100,7 +100,7 @@ class ChallengeActivity : ComponentActivity() {
 }
 
 @Composable
-private fun TypingScreen(sentence: String, onDone: () -> Unit, onCancel: () -> Unit) {
+internal fun TypingScreen(sentence: String, onDone: () -> Unit, onCancel: () -> Unit) {
     val p = LocalTollPalette.current
     var typed by remember { mutableStateOf("") }
     var warning by remember { mutableStateOf<String?>(null) }

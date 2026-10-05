@@ -273,6 +273,8 @@ private fun describe(change: PendingChange, s: TollSettings): String {
     }
     patch.quickPassesPerDay?.let { parts += "$it quick passes a day" }
     patch.quickPassLength?.let { parts += "quick passes of ${it.short()}" }
+    patch.earnPerTask?.let { parts += "tasks add ${it.short()}" }
+    patch.earnCapPerDay?.let { parts += "earn up to ${it.short()} a day" }
     return if (parts.isEmpty()) "a settings change" else parts.joinToString(", ")
 }
 

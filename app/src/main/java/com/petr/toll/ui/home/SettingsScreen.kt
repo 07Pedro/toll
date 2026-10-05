@@ -122,6 +122,23 @@ fun SettingsScreen(
             )
         }
 
+        Section("EARN TIME") {
+            Stepper(
+                label = "Each task adds",
+                value = draft.earnPerTask.short(),
+                waits = draft.earnPerTask > current.earnPerTask,
+                onMinus = { draft = draft.copy(earnPerTask = step(draft.earnPerTask, -5, 5, 30)) },
+                onPlus = { draft = draft.copy(earnPerTask = step(draft.earnPerTask, 5, 5, 30)) },
+            )
+            Stepper(
+                label = "Most earned a day",
+                value = draft.earnCapPerDay.short(),
+                waits = draft.earnCapPerDay > current.earnCapPerDay,
+                onMinus = { draft = draft.copy(earnCapPerDay = step(draft.earnCapPerDay, -10, 0, 120)) },
+                onPlus = { draft = draft.copy(earnCapPerDay = step(draft.earnCapPerDay, 10, 0, 120)) },
+            )
+        }
+
         if (pending.isNotEmpty()) {
             Section("WAITING") {
                 pending.forEach { change ->
@@ -172,6 +189,8 @@ private fun describeChange(change: PendingChange): String {
         patch.taper?.let { t -> if (t is Taper.Subtract) "${t.amount.short()} less each week" else "a slower weekly cut" },
         patch.quickPassesPerDay?.let { "$it quick passes a day" },
         patch.quickPassLength?.let { "quick passes of ${it.short()}" },
+        patch.earnPerTask?.let { "tasks add ${it.short()}" },
+        patch.earnCapPerDay?.let { "earn up to ${it.short()} a day" },
     )
     return if (parts.isEmpty()) "a settings change" else parts.joinToString(", ")
 }

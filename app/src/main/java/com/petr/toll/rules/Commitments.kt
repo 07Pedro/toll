@@ -11,6 +11,8 @@ data class SettingsPatch(
     val taper: Taper? = null,
     val quickPassesPerDay: Int? = null,
     val quickPassLength: Duration? = null,
+    val earnPerTask: Duration? = null,
+    val earnCapPerDay: Duration? = null,
 ) {
     val isEmpty: Boolean get() = this == SettingsPatch()
 
@@ -21,6 +23,8 @@ data class SettingsPatch(
         taper = taper ?: s.taper,
         quickPassesPerDay = quickPassesPerDay ?: s.quickPassesPerDay,
         quickPassLength = quickPassLength ?: s.quickPassLength,
+        earnPerTask = earnPerTask ?: s.earnPerTask,
+        earnCapPerDay = earnCapPerDay ?: s.earnCapPerDay,
     )
 }
 
@@ -91,4 +95,6 @@ private val FIELDS: List<Field<*>> = listOf(
     Field<Taper>({ it.taper }, { it.taper }, { p, v -> p.copy(taper = v) }, { c, v -> Commitments.taperIsLooser(c, v) }),
     Field<Int>({ it.quickPassesPerDay }, { it.quickPassesPerDay }, { p, v -> p.copy(quickPassesPerDay = v) }, { c, v -> v > c.quickPassesPerDay }),
     Field<Duration>({ it.quickPassLength }, { it.quickPassLength }, { p, v -> p.copy(quickPassLength = v) }, { c, v -> v > c.quickPassLength }),
+    Field<Duration>({ it.earnPerTask }, { it.earnPerTask }, { p, v -> p.copy(earnPerTask = v) }, { c, v -> v > c.earnPerTask }),
+    Field<Duration>({ it.earnCapPerDay }, { it.earnCapPerDay }, { p, v -> p.copy(earnCapPerDay = v) }, { c, v -> v > c.earnCapPerDay }),
 )

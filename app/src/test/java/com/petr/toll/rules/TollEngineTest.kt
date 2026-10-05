@@ -34,6 +34,7 @@ class TollEngineTest {
         fun screen(kind: ScreenKind) = send(TollEvent.Screen(now, kind))
         fun pay() = send(TollEvent.TollPaid(now))
         fun quickPass() = send(TollEvent.QuickPassStarted(now))
+        fun earn() = send(TollEvent.TimeEarned(now, "pushups"))
 
         /** Scrolls minute by minute, dismissing "Still here?" whenever it shows. */
         fun scroll(minutes: Int) = repeat(minutes) {
@@ -318,6 +319,45 @@ class TollEngineTest {
         assertEquals(min(180), sim.d.limit)
         sim.send(TollEvent.Tick(at(saturday, 5)))
         assertEquals(min(300), sim.d.limit)
+    }
+
+    @Test fun eachTaskAdds10MinutesToTodaysLimitUpTo30() {
+        val sim = sim(at(monday, 10), smallLimit())
+        sim.screen(ScreenKind.PAID)
+        sim.waitMin(30)
+        assertEquals(Tier.TYPING, sim.d.tier)
+
+        sim.earn()
+        assertEquals(min(70), sim.d.limit)
+        assertEquals(Tier.FREE, sim.d.tier) // 30 of 70 is under half
+        assertEquals(min(20), sim.d.earnLeft)
+
+        repeat(3) { sim.earn() }
+        assertEquals(min(90), sim.d.limit)
+        assertEquals(min(30), sim.d.earnedToday)
+        assertEquals(Duration.ZERO, sim.d.earnLeft)
+    }
+
+    @Test fun earningBackUnderTheLimitLiftsTheGate() {
+        val sim = sim(at(monday, 10), smallLimit())
+        sim.screen(ScreenKind.PAID)
+        sim.scroll(60)
+        assertNotNull(sim.d.gate)
+
+        repeat(3) { sim.earn() }
+        assertEquals(min(90), sim.d.limit)
+        assertNull(sim.d.gate)
+        sim.waitMin(5)
+        assertEquals(min(65), sim.paid)
+    }
+
+    @Test fun earnedTimeResetsAt4am() {
+        val sim = sim(at(monday, 10))
+        sim.earn()
+        assertEquals(min(190), sim.d.limit)
+        sim.send(TollEvent.Tick(at(monday.plusDays(1), 4)))
+        assertEquals(Duration.ZERO, sim.d.earnedToday)
+        assertEquals(min(180), sim.d.limit)
     }
 
     @Test fun nextChangeAtPointsToTheNextThreshold() {

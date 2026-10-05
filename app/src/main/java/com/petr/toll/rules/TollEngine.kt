@@ -37,6 +37,9 @@ sealed class TollEvent {
 
     /** Petr tapped Quick pass in Toll. Ignored if none are left or one is already running. */
     data class QuickPassStarted(override val at: Instant) : TollEvent()
+
+    /** Petr finished an earn-time task, e.g. "pushups", "duolingo", "steps". Adds to today's limit, up to the cap. */
+    data class TimeEarned(override val at: Instant, val task: String) : TollEvent()
 }
 
 /** One continuous stay in Instagram. */
@@ -65,6 +68,8 @@ data class EngineState(
     val opensToday: Int = 0,
     val passesBoughtToday: Int = 0,
     val quickPassesUsedToday: Int = 0,
+    /** Added to today's limit by earn-time tasks; resets with the day. */
+    val earnedToday: Duration = Duration.ZERO,
     val screenOn: Boolean = true,
     val screen: ScreenKind = ScreenKind.OUTSIDE,
     /** When Instagram last left the front, while the visit's grace period runs. */
@@ -100,6 +105,10 @@ data class Decision(
     val quickPassLeft: Duration?,
     /** Full length of a quick pass, for drawing the countdown. */
     val quickPassLength: Duration,
+    /** Time earned today with tasks; already included in [limit]. */
+    val earnedToday: Duration,
+    /** How much more can still be earned today. */
+    val earnLeft: Duration,
     val quickPassesLeft: Int,
     /** Paid time left on the current bought pass, if any. */
     val passLeft: Duration?,
@@ -130,7 +139,7 @@ class TollEngine(private val zone: ZoneId) {
     fun decide(state: EngineState, settings: TollSettings): Decision {
         val at = state.clock ?: error("decide() needs at least one event first")
         val day = state.day!!
-        val limit = Limits.limitFor(day, settings)
+        val limit = limit(state, settings)
         val tier = Tier.of(state.paidToday, limit)
         val quickPass = quickPassActive(state, at)
         val visit = state.visit
@@ -147,12 +156,14 @@ class TollEngine(private val zone: ZoneId) {
             tier = tier,
             opensToday = state.opensToday,
             gate = gate,
-            stillHere = gate == null && stillHereShowing(state, at),
+            stillHere = gate == null && stillHereShowing(state, at, settings),
             greyscale = inside && !quickPass && tier >= Tier.GREY,
             showTimer = inside && !quickPass && tier >= Tier.TYPING &&
                 (state.screen == ScreenKind.PAID || state.screen == ScreenKind.UNKNOWN),
             quickPassLeft = state.quickPassUntil?.takeIf { quickPass }?.let { Duration.between(at, it) },
             quickPassLength = settings.quickPassLength,
+            earnedToday = state.earnedToday,
+            earnLeft = (settings.earnCapPerDay - state.earnedToday).coerceAtLeast(Duration.ZERO),
             quickPassesLeft = (settings.quickPassesPerDay - state.quickPassesUsedToday).coerceAtLeast(0),
             passLeft = visit?.passBudget,
             nextChangeAt = nextStop(state, at, settings),
@@ -181,7 +192,7 @@ class TollEngine(private val zone: ZoneId) {
         s.quickPassUntil?.let { stops += it }
         val visit = s.visit
         if (visit != null && accruing(s, now, settings)) {
-            val limit = Limits.limitFor(s.day, settings)
+            val limit = limit(s, settings)
             for (tier in listOf(Tier.TYPING, Tier.GREY, Tier.OVER)) {
                 stops += now + (tier.threshold(limit) - s.paidToday)
             }
@@ -213,7 +224,14 @@ class TollEngine(private val zone: ZoneId) {
         var s = state
         val today = tollDay(at, settings)
         if (today != s.day) {
-            s = s.copy(day = today, paidToday = Duration.ZERO, opensToday = 0, passesBoughtToday = 0, quickPassesUsedToday = 0)
+            s = s.copy(
+                day = today,
+                paidToday = Duration.ZERO,
+                opensToday = 0,
+                passesBoughtToday = 0,
+                quickPassesUsedToday = 0,
+                earnedToday = Duration.ZERO,
+            )
         }
         val outsideSince = s.outsideSince
         if (outsideSince != null && at >= outsideSince + Rules.VISIT_GRACE) s = endVisit(s, outsideSince)
@@ -247,6 +265,8 @@ class TollEngine(private val zone: ZoneId) {
         is TollEvent.StillHereDismissed ->
             s.visit?.let { s.copy(visit = it.copy(stillHereDue = false, sinceStillHere = Duration.ZERO)) } ?: s
         is TollEvent.QuickPassStarted -> onQuickPass(s, at, settings)
+        is TollEvent.TimeEarned ->
+            s.copy(earnedToday = maxOf(s.earnedToday, minOf(s.earnedToday + settings.earnPerTask, settings.earnCapPerDay)))
     }
 
     private fun onScreen(s: EngineState, kind: ScreenKind, at: Instant): EngineState {
@@ -299,7 +319,11 @@ class TollEngine(private val zone: ZoneId) {
 
     private fun tollDay(at: Instant, settings: TollSettings): LocalDate = Limits.tollDay(at, zone, settings.dayStartHour)
 
-    private fun tier(s: EngineState, settings: TollSettings): Tier = Tier.of(s.paidToday, Limits.limitFor(s.day!!, settings))
+    /** Today's limit: the plan's limit for the day plus anything earned. */
+    private fun limit(s: EngineState, settings: TollSettings): Duration =
+        Limits.limitFor(s.day!!, settings) + s.earnedToday
+
+    private fun tier(s: EngineState, settings: TollSettings): Tier = Tier.of(s.paidToday, limit(s, settings))
 
     private fun quickPassActive(s: EngineState, at: Instant): Boolean = s.quickPassUntil?.let { at < it } ?: false
 
@@ -312,15 +336,17 @@ class TollEngine(private val zone: ZoneId) {
         return tier(s, settings) == Tier.OVER && (visit.passBudget ?: Duration.ZERO) <= Duration.ZERO
     }
 
-    private fun stillHereShowing(s: EngineState, at: Instant): Boolean =
-        inside(s) && s.screen == ScreenKind.PAID && s.visit?.stillHereDue == true && !quickPassActive(s, at)
+    /** Only from 75% of today's limit: earning time back below it also clears a pending "Still here?". */
+    private fun stillHereShowing(s: EngineState, at: Instant, settings: TollSettings): Boolean =
+        inside(s) && s.screen == ScreenKind.PAID && s.visit?.stillHereDue == true && !quickPassActive(s, at) &&
+            tier(s, settings) >= Tier.GREY
 
     /** Paid time runs on paid screens nothing covers, and on unrecognised screens always. */
     private fun accruing(s: EngineState, at: Instant, settings: TollSettings): Boolean {
         if (!inside(s)) return false
         return when (s.screen) {
             ScreenKind.UNKNOWN -> true
-            ScreenKind.PAID -> !gateNeeded(s, at, settings) && !stillHereShowing(s, at)
+            ScreenKind.PAID -> !gateNeeded(s, at, settings) && !stillHereShowing(s, at, settings)
             else -> false
         }
     }

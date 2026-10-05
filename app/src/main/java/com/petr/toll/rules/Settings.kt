@@ -27,6 +27,10 @@ data class TollSettings(
     val dayStartHour: Int = 4,
     val quickPassesPerDay: Int = 3,
     val quickPassLength: Duration = Duration.ofMinutes(3),
+    /** What one earn-time task (push-ups, Duolingo, a walk) adds to today's limit. */
+    val earnPerTask: Duration = Duration.ofMinutes(10),
+    /** The most a day's limit can grow from earned time. */
+    val earnCapPerDay: Duration = Duration.ofMinutes(30),
 )
 
 /** Fixed product rules. Not settings: changing these is a code change. */
