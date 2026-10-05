@@ -1,0 +1,68 @@
+package com.petr.toll.classifier
+
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+
+/**
+ * Screen signatures, loaded from assets/signatures.json. When Instagram changes its UI, this file changes, not the code.
+ * Rules are tried top to bottom and the first match wins.
+ */
+@Serializable
+data class Signatures(
+    val schemaVersion: Int = 1,
+    val notes: String = "",
+    val rules: List<Rule>,
+    /** View-ID fragments whose text identifies the reel or post on screen (author, caption). Used to notice a swipe onward. */
+    val itemKeyIds: List<String> = emptyList(),
+    val navigation: Navigation = Navigation(),
+) {
+    init {
+        val duplicate = rules.groupBy { it.id }.filterValues { it.size > 1 }.keys
+        require(duplicate.isEmpty()) { "Duplicate rule ids: $duplicate" }
+    }
+
+    companion object {
+        private val json = Json { ignoreUnknownKeys = true }
+
+        fun parse(text: String): Signatures = json.decodeFromString(serializer(), text)
+    }
+}
+
+/**
+ * A rule matches when all of its conditions hold:
+ * - [ids]: every group needs at least one visible node whose view ID contains one of the group's fragments.
+ * - [notIds]: no visible node's view ID contains any of these fragments.
+ * - [tabIds]: the selected bottom tab's view ID equals one of these. A tab counts as selected when it or any node
+ *   inside it is selected (Instagram 449 often marks only the tab's icon).
+ * - [selectedTab]: a visible, selected node's description equals one of these (case-insensitive).
+ * - [windowClass]: the last window class contains one of these.
+ */
+@Serializable
+data class Rule(
+    val id: String,
+    val screen: Screen,
+    val ids: List<List<String>> = emptyList(),
+    val notIds: List<String> = emptyList(),
+    val tabIds: List<String> = emptyList(),
+    val selectedTab: List<String> = emptyList(),
+    val windowClass: List<String> = emptyList(),
+) {
+    init {
+        require(ids.isNotEmpty() || tabIds.isNotEmpty() || selectedTab.isNotEmpty() || windowClass.isNotEmpty()) {
+            "Rule $id has no positive condition and would match every screen"
+        }
+        require(ids.none { it.isEmpty() }) { "Rule $id has an empty ids group" }
+    }
+}
+
+@Serializable
+data class Navigation(
+    val dmButton: NavTarget = NavTarget(),
+    val storyTray: NavTray = NavTray(),
+)
+
+@Serializable
+data class NavTarget(val ids: List<String> = emptyList(), val descs: List<String> = emptyList())
+
+@Serializable
+data class NavTray(val ids: List<String> = emptyList(), val skipDescs: List<String> = emptyList())

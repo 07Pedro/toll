@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Toll</string>
+    <string name="accessibility_description">Toll reads which Instagram screen is open (feed, Reels, messages…) so it can tell free screens from paid ones. Everything stays on this phone: Toll has no internet access.</string>
+</resources>

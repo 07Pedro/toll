@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Toll: a T whose crossbar is a toll barrier arm. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FFFFFFFF" android:fillAlpha="1" android:pathData="M50,49 H58 A2,2 0 0 1 60,51 V73 A2,2 0 0 1 58,75 H50 A2,2 0 0 1 48,73 V51 A2,2 0 0 1 50,49 Z" />
+    <group>
+        <clip-path android:pathData="M32,33 H76 A3,3 0 0 1 79,36 V44 A3,3 0 0 1 76,47 H32 A3,3 0 0 1 29,44 V36 A3,3 0 0 1 32,33 Z" />
+        <path android:fillColor="#FFFFFFFF" android:fillAlpha="0.45" android:pathData="M32,33 H76 A3,3 0 0 1 79,36 V44 A3,3 0 0 1 76,47 H32 A3,3 0 0 1 29,44 V36 A3,3 0 0 1 32,33 Z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M15,47 L29,33 L36,33 L22,47 Z M29,47 L43,33 L50,33 L36,47 Z M43,47 L57,33 L64,33 L50,47 Z M57,47 L71,33 L78,33 L64,47 Z M71,47 L85,33 L92,33 L78,47 Z" />
+    </group>
+</vector>

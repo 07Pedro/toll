@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "instagramVersion": "449.0.0.52.84",
+  "notes": "Checked against Petr's Phase 0 dumps (2026-10-04) for feed, Reels tab, Explore, search, story viewer, profiles, DM inbox, DM thread, comments sheet and a reel opened from Explore or a DM. post_detail is still a guess. Rules are tried top to bottom and the first match wins. In 'ids', every inner list needs at least one visible node whose view ID contains one of its fragments. 'tabIds' is the selected bottom tab.",
+  "rules": [
+    { "id": "dm_thread_composer", "screen": "DM_THREAD", "ids": [["row_thread_composer_edittext", "direct_thread_header"]] },
+    { "id": "story_viewer", "screen": "STORY", "ids": [["reel_viewer_root", "reel_viewer_media_container", "reel_viewer_header", "reel_viewer_progress_bar"]] },
+    { "id": "comments_sheet", "screen": "COMMENTS", "ids": [["layout_comment_thread_edittext"], ["bottom_sheet_container"]] },
+    { "id": "reels_viewer", "screen": "REELS_VIEWER", "ids": [["clips_viewer_view_pager", "clips_viewer_container", "clips_video_container"]] },
+    { "id": "dm_inbox_list", "screen": "DM_INBOX", "ids": [["inbox_refreshable_thread_list", "direct_inbox_action_bar"]] },
+    { "id": "profile_header", "screen": "PROFILE", "ids": [["profile_header_container", "profile_header_actions_top_row", "profile_tabs_container"]] },
+    { "id": "post_detail", "screen": "POST", "ids": [["row_feed_photo_profile_name", "row_feed_profile_header", "row_feed_button_like"], ["action_bar_button_back"]] },
+    { "id": "search_box", "screen": "EXPLORE", "ids": [["action_bar_search_edit_text", "explore_action_bar", "row_search_user_container"]] },
+    { "id": "tab_home", "screen": "FEED", "tabIds": ["feed_tab"] },
+    { "id": "tab_search", "screen": "EXPLORE", "tabIds": ["search_tab"] },
+    { "id": "tab_reels", "screen": "REELS_VIEWER", "tabIds": ["clips_tab"] },
+    { "id": "tab_messages", "screen": "DM_INBOX", "tabIds": ["direct_tab"] },
+    { "id": "tab_profile", "screen": "PROFILE", "tabIds": ["profile_tab"] },
+    { "id": "feed_rows", "screen": "FEED", "ids": [["row_feed_photo_profile_name", "row_feed_button_like", "row_feed_profile_header"]] }
+  ],
+  "itemKeyIds": ["clips_author_username", "clips_caption_component", "row_feed_photo_profile_name"],
+  "navigation": {
+    "dmButton": {
+      "ids": ["direct_tab", "action_bar_inbox_button"],
+      "descs": ["Message", "Messages", "Direct", "Messenger"]
+    },
+    "storyTray": {
+      "ids": ["reels_tray", "stories_tray", "story_tray"],
+      "skipDescs": ["your story", "add to story", "your note", "create"]
+    }
+  }
+}

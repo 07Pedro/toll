@@ -1,0 +1,2325 @@
+{
+ "savedAt": "2026-10-04T22:02:49.562142",
+ "instagramVersion": "449.0.0.52.84",
+ "screen": "REELS_VIEWER",
+ "rule": "reels_viewer",
+ "windowClass": "com.instagram.mainactivity.InstagramMainActivity",
+ "strictRedaction": false,
+ "root": {
+  "cls": "android.widget.FrameLayout",
+  "b": [
+   0,
+   0,
+   1080,
+   2337
+  ],
+  "kids": [
+   {
+    "cls": "android.widget.LinearLayout",
+    "b": [
+     0,
+     0,
+     1080,
+     2337
+    ],
+    "kids": [
+     {
+      "cls": "android.widget.FrameLayout",
+      "b": [
+       0,
+       0,
+       1080,
+       2337
+      ],
+      "kids": [
+       {
+        "id": "action_bar_root",
+        "cls": "android.widget.LinearLayout",
+        "b": [
+         0,
+         0,
+         1080,
+         2337
+        ],
+        "kids": [
+         {
+          "id": "content",
+          "cls": "android.widget.FrameLayout",
+          "b": [
+           0,
+           0,
+           1080,
+           2337
+          ],
+          "kids": [
+           {
+            "cls": "android.widget.FrameLayout",
+            "b": [
+             0,
+             0,
+             1080,
+             2337
+            ],
+            "kids": [
+             {
+              "id": "swipe_navigation_container",
+              "cls": "android.widget.FrameLayout",
+              "b": [
+               0,
+               136,
+               1080,
+               2337
+              ],
+              "kids": [
+               {
+                "id": "layout_container_center_right_coordinator_layout",
+                "cls": "android.view.ViewGroup",
+                "b": [
+                 933,
+                 2235,
+                 1012,
+                 2314
+                ],
+                "kids": [
+                 {
+                  "id": "layout_container_right",
+                  "cls": "android.widget.FrameLayout",
+                  "b": [
+                   0,
+                   136,
+                   1080,
+                   2337
+                  ]
+                 },
+                 {
+                  "id": "activity_and_camera_shared_views_main_container",
+                  "cls": "android.widget.FrameLayout",
+                  "b": [
+                   0,
+                   136,
+                   1080,
+                   2337
+                  ]
+                 },
+                 {
+                  "id": "layout_container_main_panel",
+                  "cls": "android.view.ViewGroup",
+                  "b": [
+                   933,
+                   2235,
+                   1012,
+                   2314
+                  ],
+                  "kids": [
+                   {
+                    "id": "layout_container_main_wrapper",
+                    "cls": "android.widget.FrameLayout",
+                    "b": [
+                     933,
+                     2235,
+                     1012,
+                     2314
+                    ],
+                    "kids": [
+                     {
+                      "id": "layout_container_main",
+                      "cls": "android.widget.FrameLayout",
+                      "b": [
+                       0,
+                       136,
+                       1080,
+                       2211
+                      ]
+                     },
+                     {
+                      "id": "swipeable_tab_view_pager",
+                      "cls": "androidx.viewpager.widget.ViewPager",
+                      "b": [
+                       3240,
+                       136,
+                       1080,
+                       2211
+                      ],
+                      "kids": [
+                       {
+                        "id": "swipeable_nav_view_pager_inner_recycler_view",
+                        "cls": "androidx.recyclerview.widget.RecyclerView",
+                        "scr": true,
+                        "b": [
+                         3240,
+                         136,
+                         1080,
+                         2211
+                        ],
+                        "kids": [
+                         {
+                          "cls": "android.widget.FrameLayout",
+                          "vis": false,
+                          "b": [
+                           0,
+                           282,
+                           0,
+                           283
+                          ],
+                          "kids": [
+                           {
+                            "id": "layout_container_swipeable",
+                            "cls": "android.widget.FrameLayout",
+                            "vis": false,
+                            "b": [
+                             0,
+                             282,
+                             0,
+                             283
+                            ],
+                            "kids": [
+                             {
+                              "cls": "android.widget.FrameLayout",
+                              "vis": false,
+                              "b": [
+                               0,
+                               282,
+                               0,
+                               283
+                              ],
+                              "kids": [
+                               {
+                                "id": "sticky_header_list",
+                                "cls": "android.widget.FrameLayout",
+                                "vis": false,
+                                "b": [
+                                 0,
+                                 2305,
+                                 0,
+                                 2211
+                                ],
+                                "kids": [
+                                 {
+                                  "id": "refreshable_container",
+                                  "cls": "android.widget.FrameLayout",
+                                  "vis": false,
+                                  "b": [
+                                   0,
+                                   2305,
+                                   0,
+                                   2211
+                                  ],
+                                  "kids": [
+                                   {
+                                    "id": "list",
+                                    "cls": "androidx.recyclerview.widget.RecyclerView",
+                                    "scr": true,
+                                    "vis": false,
+                                    "b": [
+                                     0,
+                                     2305,
+                                     0,
+                                     2211
+                                    ],
+                                    "kids": [
+                                     {
+                                      "cls": "android.view.ViewGroup",
+                                      "vis": false,
+                                      "b": [
+                                       0,
+                                       137,
+                                       0,
+                                       264
+                                      ],
+                                      "kids": [
+                                       {
+                                        "id": "video_container",
+                                        "cls": "android.view.ViewGroup",
+                                        "vis": false,
+                                        "b": [
+                                         0,
+                                         136,
+                                         0,
+                                         2053
+                                        ],
+                                        "kids": [
+                                         {
+                                          "id": "video_container",
+                                          "cls": "android.view.ViewGroup",
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           2053,
+                                           -142,
+                                           2053
+                                          ],
+                                          "kids": [
+                                           {
+                                            "cls": "android.view.ViewGroup",
+                                            "vis": false,
+                                            "b": [
+                                             0,
+                                             2053,
+                                             -142,
+                                             2053
+                                            ],
+                                            "kids": [
+                                             {
+                                              "cls": "android.widget.FrameLayout",
+                                              "vis": false,
+                                              "b": [
+                                               0,
+                                               136,
+                                               0,
+                                               2053
+                                              ],
+                                              "kids": [
+                                               {
+                                                "cls": "android.widget.FrameLayout",
+                                                "vis": false,
+                                                "b": [
+                                                 0,
+                                                 136,
+                                                 0,
+                                                 2053
+                                                ],
+                                                "kids": [
+                                                 {
+                                                  "id": "video_states",
+                                                  "cls": "android.widget.FrameLayout",
+                                                  "vis": false,
+                                                  "b": [
+                                                   0,
+                                                   136,
+                                                   0,
+                                                   2053
+                                                  ]
+                                                 }
+                                                ]
+                                               }
+                                              ]
+                                             },
+                                             {
+                                              "cls": "android.widget.FrameLayout",
+                                              "vis": false,
+                                              "b": [
+                                               0,
+                                               136,
+                                               0,
+                                               2053
+                                              ]
+                                             },
+                                             {
+                                              "cls": "android.view.ViewGroup",
+                                              "vis": false,
+                                              "b": [
+                                               0,
+                                               1899,
+                                               -903,
+                                               2014
+                                              ],
+                                              "kids": [
+                                               {
+                                                "cls": "android.view.ViewGroup",
+                                                "vis": false,
+                                                "b": [
+                                                 0,
+                                                 1899,
+                                                 -903,
+                                                 2014
+                                                ],
+                                                "kids": [
+                                                 {
+                                                  "cls": "android.view.ViewGroup",
+                                                  "vis": false,
+                                                  "b": [
+                                                   0,
+                                                   1899,
+                                                   -903,
+                                                   2014
+                                                  ],
+                                                  "kids": [
+                                                   {
+                                                    "cls": "android.widget.ImageView",
+                                                    "vis": false,
+                                                    "b": [
+                                                     0,
+                                                     1899,
+                                                     -903,
+                                                     2014
+                                                    ]
+                                                   }
+                                                  ]
+                                                 }
+                                                ]
+                                               }
+                                              ]
+                                             },
+                                             {
+                                              "cls": "android.view.ViewGroup",
+                                              "vis": false,
+                                              "b": [
+                                               0,
+                                               1092,
+                                               -540,
+                                               1092
+                                              ]
+                                             },
+                                             {
+                                              "cls": "android.view.ViewGroup",
+                                              "vis": false,
+                                              "b": [
+                                               0,
+                                               1965,
+                                               -54,
+                                               1999
+                                              ],
+                                              "kids": [
+                                               {
+                                                "cls": "android.view.ViewGroup",
+                                                "clk": true,
+                                                "vis": false,
+                                                "b": [
+                                                 0,
+                                                 1965,
+                                                 -54,
+                                                 1999
+                                                ],
+                                                "kids": [
+                                                 {
+                                                  "cls": "android.widget.LinearLayout",
+                                                  "vis": false,
+                                                  "b": [
+                                                   0,
+                                                   1965,
+                                                   -54,
+                                                   1999
+                                                  ],
+                                                  "kids": [
+                                                   {
+                                                    "id": "slideout_iconview_icon",
+                                                    "cls": "android.widget.ImageView",
+                                                    "vis": false,
+                                                    "b": [
+                                                     0,
+                                                     1965,
+                                                     -54,
+                                                     1999
+                                                    ]
+                                                   }
+                                                  ]
+                                                 }
+                                                ]
+                                               }
+                                              ]
+                                             },
+                                             {
+                                              "cls": "android.view.ViewGroup",
+                                              "vis": false,
+                                              "b": [
+                                               0,
+                                               2053,
+                                               -142,
+                                               2053
+                                              ]
+                                             }
+                                            ]
+                                           }
+                                          ]
+                                         },
+                                         {
+                                          "id": "video_container",
+                                          "cls": "android.widget.FrameLayout",
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           136,
+                                           0,
+                                           2053
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "media_group",
+                                            "cls": "android.widget.FrameLayout",
+                                            "clk": true,
+                                            "vis": false,
+                                            "b": [
+                                             0,
+                                             136,
+                                             0,
+                                             2053
+                                            ],
+                                            "kids": [
+                                             {
+                                              "cls": "android.view.SurfaceView",
+                                              "vis": false,
+                                              "b": [
+                                               0,
+                                               136,
+                                               0,
+                                               2053
+                                              ]
+                                             }
+                                            ]
+                                           }
+                                          ]
+                                         }
+                                        ]
+                                       },
+                                       {
+                                        "cls": "android.view.ViewGroup",
+                                        "vis": false,
+                                        "b": [
+                                         0,
+                                         136,
+                                         0,
+                                         460
+                                        ]
+                                       },
+                                       {
+                                        "id": "row_feed_profile_header",
+                                        "cls": "android.view.ViewGroup",
+                                        "vis": false,
+                                        "b": [
+                                         0,
+                                         137,
+                                         0,
+                                         264
+                                        ],
+                                        "kids": [
+                                         {
+                                          "cls": "android.widget.Button",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           161,
+                                           -962,
+                                           240
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "row_feed_photo_profile_imageview",
+                                            "cls": "android.widget.ImageView",
+                                            "vis": false,
+                                            "b": [
+                                             0,
+                                             161,
+                                             -962,
+                                             240
+                                            ]
+                                           }
+                                          ]
+                                         },
+                                         {
+                                          "id": "row_feed_photo_profile_name",
+                                          "cls": "android.widget.Button",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           136,
+                                           -115,
+                                           198
+                                          ]
+                                         },
+                                         {
+                                          "id": "secondary_label",
+                                          "cls": "android.widget.Button",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           198,
+                                           -115,
+                                           269
+                                          ]
+                                         },
+                                         {
+                                          "id": "media_option_button",
+                                          "cls": "android.widget.ImageView",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           137,
+                                           0,
+                                           264
+                                          ]
+                                         }
+                                        ]
+                                       }
+                                      ]
+                                     },
+                                     {
+                                      "cls": "android.view.ViewGroup",
+                                      "vis": false,
+                                      "b": [
+                                       0,
+                                       2305,
+                                       0,
+                                       2211
+                                      ],
+                                      "kids": [
+                                       {
+                                        "id": "row_feed_view_group_buttons",
+                                        "cls": "android.view.ViewGroup",
+                                        "vis": false,
+                                        "b": [
+                                         0,
+                                         2053,
+                                         -5,
+                                         2163
+                                        ],
+                                        "kids": [
+                                         {
+                                          "cls": "android.view.ViewGroup",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           2053,
+                                           -985,
+                                           2174
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "row_feed_button_like",
+                                            "cls": "android.widget.Button",
+                                            "vis": false,
+                                            "b": [
+                                             0,
+                                             2053,
+                                             -985,
+                                             2174
+                                            ]
+                                           }
+                                          ]
+                                         },
+                                         {
+                                          "cls": "android.widget.Button",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           2053,
+                                           -915,
+                                           2174
+                                          ]
+                                         },
+                                         {
+                                          "cls": "android.view.ViewGroup",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           2053,
+                                           -820,
+                                           2174
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "row_feed_button_comment",
+                                            "cls": "android.widget.Button",
+                                            "vis": false,
+                                            "b": [
+                                             0,
+                                             2053,
+                                             -820,
+                                             2174
+                                            ]
+                                           }
+                                          ]
+                                         },
+                                         {
+                                          "cls": "android.widget.Button",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           2053,
+                                           -765,
+                                           2174
+                                          ]
+                                         },
+                                         {
+                                          "id": "reposts_ufi_icon",
+                                          "cls": "android.widget.Button",
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           2053,
+                                           -628,
+                                           2174
+                                          ],
+                                          "kids": [
+                                           {
+                                            "cls": "android.view.ViewGroup",
+                                            "clk": true,
+                                            "vis": false,
+                                            "b": [
+                                             0,
+                                             2053,
+                                             -659,
+                                             2174
+                                            ],
+                                            "kids": [
+                                             {
+                                              "cls": "android.widget.ImageView",
+                                              "vis": false,
+                                              "b": [
+                                               0,
+                                               2053,
+                                               -659,
+                                               2174
+                                              ]
+                                             }
+                                            ]
+                                           },
+                                           {
+                                            "cls": "android.widget.Button",
+                                            "clk": true,
+                                            "vis": false,
+                                            "b": [
+                                             0,
+                                             2053,
+                                             -628,
+                                             2174
+                                            ]
+                                           }
+                                          ]
+                                         },
+                                         {
+                                          "cls": "android.view.ViewGroup",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           2053,
+                                           -533,
+                                           2174
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "row_feed_button_share",
+                                            "cls": "android.view.ViewGroup",
+                                            "vis": false,
+                                            "b": [
+                                             0,
+                                             2053,
+                                             -533,
+                                             2174
+                                            ]
+                                           }
+                                          ]
+                                         },
+                                         {
+                                          "cls": "android.widget.Button",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           2053,
+                                           -478,
+                                           2174
+                                          ]
+                                         },
+                                         {
+                                          "id": "row_feed_button_save",
+                                          "cls": "android.widget.Button",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           2053,
+                                           -5,
+                                           2163
+                                          ]
+                                         }
+                                        ]
+                                       },
+                                       {
+                                        "cls": "android.view.ViewGroup",
+                                        "vis": false,
+                                        "b": [
+                                         -821,
+                                         2182,
+                                         -637,
+                                         2226
+                                        ],
+                                        "kids": [
+                                         {
+                                          "cls": "android.view.ViewGroup",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           2174,
+                                           -988,
+                                           2211
+                                          ]
+                                         },
+                                         {
+                                          "cls": "android.widget.TextView",
+                                          "clk": true,
+                                          "vis": false,
+                                          "b": [
+                                           -821,
+                                           2182,
+                                           -637,
+                                           2226
+                                          ],
+                                          "kids": [
+                                           {
+                                            "cls": "android.widget.Button",
+                                            "clk": true,
+                                            "vis": false,
+                                            "b": [
+                                             -821,
+                                             2182,
+                                             -637,
+                                             2226
+                                            ]
+                                           }
+                                          ]
+                                         }
+                                        ]
+                                       },
+                                       {
+                                        "cls": "android.view.ViewGroup",
+                                        "vis": false,
+                                        "b": [
+                                         -750,
+                                         2245,
+                                         -492,
+                                         2289
+                                        ],
+                                        "kids": [
+                                         {
+                                          "cls": "com.instagram.ui.widget.textview.IgTextLayoutView",
+                                          "vis": false,
+                                          "b": [
+                                           -750,
+                                           2245,
+                                           -492,
+                                           2289
+                                          ],
+                                          "kids": [
+                                           {
+                                            "cls": "android.widget.Button",
+                                            "clk": true,
+                                            "vis": false,
+                                            "b": [
+                                             -1048,
+                                             2245,
+                                             -759,
+                                             2289
+                                            ]
+                                           },
+                                           {
+                                            "cls": "android.widget.Button",
+                                            "clk": true,
+                                            "vis": false,
+                                            "b": [
+                                             -750,
+                                             2245,
+                                             -492,
+                                             2289
+                                            ]
+                                           }
+                                          ]
+                                         }
+                                        ]
+                                       },
+                                       {
+                                        "cls": "android.widget.TextView",
+                                        "vis": false,
+                                        "b": [
+                                         0,
+                                         2305,
+                                         0,
+                                         2211
+                                        ]
+                                       }
+                                      ]
+                                     }
+                                    ]
+                                   }
+                                  ]
+                                 }
+                                ]
+                               },
+                               {
+                                "id": "action_bar_LinearLayout",
+                                "cls": "android.widget.LinearLayout",
+                                "vis": false,
+                                "b": [
+                                 0,
+                                 282,
+                                 0,
+                                 283
+                                ],
+                                "kids": [
+                                 {
+                                  "id": "main_feed_action_bar",
+                                  "cls": "android.widget.FrameLayout",
+                                  "vis": false,
+                                  "b": [
+                                   0,
+                                   282,
+                                   0,
+                                   283
+                                  ],
+                                  "kids": [
+                                   {
+                                    "id": "action_bar_action_buttons",
+                                    "cls": "android.widget.LinearLayout",
+                                    "vis": false,
+                                    "b": [
+                                     0,
+                                     178,
+                                     -32,
+                                     241
+                                    ],
+                                    "kids": [
+                                     {
+                                      "id": "action_bar_buttons_container_left",
+                                      "cls": "android.widget.LinearLayout",
+                                      "vis": false,
+                                      "b": [
+                                       0,
+                                       136,
+                                       -953,
+                                       283
+                                      ],
+                                      "kids": [
+                                       {
+                                        "cls": "android.widget.ImageView",
+                                        "clk": true,
+                                        "vis": false,
+                                        "b": [
+                                         0,
+                                         136,
+                                         -953,
+                                         283
+                                        ]
+                                       }
+                                      ]
+                                     },
+                                     {
+                                      "id": "action_bar_title_view",
+                                      "cls": "android.widget.ViewAnimator",
+                                      "clk": true,
+                                      "vis": false,
+                                      "b": [
+                                       0,
+                                       173,
+                                       -411,
+                                       205
+                                      ],
+                                      "kids": [
+                                       {
+                                        "id": "text_title_chevron_container",
+                                        "cls": "android.widget.LinearLayout",
+                                        "vis": false,
+                                        "b": [
+                                         0,
+                                         173,
+                                         -411,
+                                         205
+                                        ],
+                                        "kids": [
+                                         {
+                                          "id": "title_text",
+                                          "cls": "android.widget.TextView",
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           155,
+                                           -461,
+                                           224
+                                          ]
+                                         },
+                                         {
+                                          "id": "title_chevron",
+                                          "cls": "android.widget.ImageView",
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           173,
+                                           -411,
+                                           205
+                                          ]
+                                         }
+                                        ]
+                                       }
+                                      ]
+                                     },
+                                     {
+                                      "id": "action_bar_buttons_container_right",
+                                      "cls": "android.widget.LinearLayout",
+                                      "vis": false,
+                                      "b": [
+                                       0,
+                                       178,
+                                       -32,
+                                       241
+                                      ],
+                                      "kids": [
+                                       {
+                                        "id": "notification",
+                                        "cls": "android.widget.FrameLayout",
+                                        "clk": true,
+                                        "vis": false,
+                                        "b": [
+                                         0,
+                                         178,
+                                         -32,
+                                         241
+                                        ],
+                                        "kids": [
+                                         {
+                                          "id": "wrapper",
+                                          "cls": "android.view.ViewGroup",
+                                          "vis": false,
+                                          "b": [
+                                           0,
+                                           178,
+                                           -32,
+                                           241
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "container",
+                                            "cls": "android.widget.FrameLayout",
+                                            "vis": false,
+                                            "b": [
+                                             0,
+                                             178,
+                                             -32,
+                                             241
+                                            ],
+                                            "kids": [
+                                             {
+                                              "id": "tab_icon",
+                                              "cls": "android.widget.ImageView",
+                                              "vis": false,
+                                              "b": [
+                                               0,
+                                               178,
+                                               -32,
+                                               241
+                                              ]
+                                             }
+                                            ]
+                                           }
+                                          ]
+                                         }
+                                        ]
+                                       }
+                                      ]
+                                     }
+                                    ]
+                                   },
+                                   {
+                                    "id": "action_bar_divider",
+                                    "cls": "android.view.View",
+                                    "vis": false,
+                                    "b": [
+                                     0,
+                                     282,
+                                     0,
+                                     283
+                                    ]
+                                   }
+                                  ]
+                                 }
+                                ]
+                               }
+                              ]
+                             }
+                            ]
+                           }
+                          ]
+                         },
+                         {
+                          "cls": "android.widget.FrameLayout",
+                          "b": [
+                           0,
+                           2211,
+                           1080,
+                           2211
+                          ],
+                          "kids": [
+                           {
+                            "id": "layout_container_swipeable",
+                            "cls": "android.widget.FrameLayout",
+                            "b": [
+                             0,
+                             2211,
+                             1080,
+                             2211
+                            ],
+                            "kids": [
+                             {
+                              "id": "root_clips_layout",
+                              "cls": "android.widget.FrameLayout",
+                              "b": [
+                               0,
+                               2211,
+                               1080,
+                               2211
+                              ],
+                              "kids": [
+                               {
+                                "id": "clips_linear_layout_container",
+                                "cls": "android.widget.LinearLayout",
+                                "b": [
+                                 0,
+                                 2211,
+                                 1080,
+                                 2211
+                                ],
+                                "kids": [
+                                 {
+                                  "id": "gesture_manager",
+                                  "cls": "android.widget.FrameLayout",
+                                  "b": [
+                                   965,
+                                   136,
+                                   1028,
+                                   67
+                                  ],
+                                  "kids": [
+                                   {
+                                    "id": "clips_viewer_debug_container",
+                                    "cls": "android.widget.LinearLayout",
+                                    "vis": false,
+                                    "b": [
+                                     0,
+                                     136,
+                                     0,
+                                     136
+                                    ]
+                                   },
+                                   {
+                                    "id": "clips_viewer_container",
+                                    "cls": "android.widget.FrameLayout",
+                                    "b": [
+                                     0,
+                                     1396,
+                                     1080,
+                                     2211
+                                    ],
+                                    "kids": [
+                                     {
+                                      "id": "clips_swipe_refresh_container",
+                                      "cls": "android.view.ViewGroup",
+                                      "b": [
+                                       0,
+                                       1396,
+                                       1080,
+                                       2211
+                                      ],
+                                      "kids": [
+                                       {
+                                        "id": "clips_viewer_view_pager",
+                                        "cls": "androidx.viewpager.widget.ViewPager",
+                                        "scr": true,
+                                        "b": [
+                                         0,
+                                         1396,
+                                         1080,
+                                         2211
+                                        ],
+                                        "kids": [
+                                         {
+                                          "cls": "androidx.recyclerview.widget.RecyclerView",
+                                          "scr": true,
+                                          "b": [
+                                           0,
+                                           1396,
+                                           1080,
+                                           2211
+                                          ],
+                                          "kids": [
+                                           {
+                                            "cls": "android.widget.FrameLayout",
+                                            "b": [
+                                             0,
+                                             1396,
+                                             1080,
+                                             2211
+                                            ],
+                                            "kids": [
+                                             {
+                                              "cls": "android.view.ViewGroup",
+                                              "b": [
+                                               0,
+                                               1396,
+                                               1080,
+                                               2211
+                                              ],
+                                              "kids": [
+                                               {
+                                                "id": "clips_media_component",
+                                                "cls": "android.view.ViewGroup",
+                                                "b": [
+                                                 0,
+                                                 633,
+                                                 1080,
+                                                 1713
+                                                ],
+                                                "kids": [
+                                                 {
+                                                  "id": "clips_single_media_component",
+                                                  "cls": "android.view.ViewGroup",
+                                                  "b": [
+                                                   0,
+                                                   633,
+                                                   1080,
+                                                   1713
+                                                  ],
+                                                  "kids": [
+                                                   {
+                                                    "cls": "android.view.ViewGroup",
+                                                    "b": [
+                                                     0,
+                                                     633,
+                                                     1080,
+                                                     1713
+                                                    ],
+                                                    "kids": [
+                                                     {
+                                                      "id": "clips_viewer_video_layout",
+                                                      "cls": "android.widget.FrameLayout",
+                                                      "b": [
+                                                       0,
+                                                       633,
+                                                       1080,
+                                                       1713
+                                                      ],
+                                                      "kids": [
+                                                       {
+                                                        "id": "clips_video_container",
+                                                        "cls": "android.widget.FrameLayout",
+                                                        "b": [
+                                                         0,
+                                                         633,
+                                                         1080,
+                                                         1713
+                                                        ],
+                                                        "kids": [
+                                                         {
+                                                          "cls": "android.view.SurfaceView",
+                                                          "b": [
+                                                           0,
+                                                           633,
+                                                           1080,
+                                                           1713
+                                                          ]
+                                                         }
+                                                        ]
+                                                       }
+                                                      ]
+                                                     }
+                                                    ]
+                                                   }
+                                                  ]
+                                                 }
+                                                ]
+                                               },
+                                               {
+                                                "cls": "android.view.ViewGroup",
+                                                "b": [
+                                                 0,
+                                                 1396,
+                                                 1080,
+                                                 2211
+                                                ],
+                                                "kids": [
+                                                 {
+                                                  "id": "clips_touchable_background",
+                                                  "cls": "android.view.ViewGroup",
+                                                  "clk": true,
+                                                  "vis": false,
+                                                  "b": [
+                                                   0,
+                                                   136,
+                                                   1080,
+                                                   2211
+                                                  ]
+                                                 },
+                                                 {
+                                                  "id": "clips_item_overlay_component",
+                                                  "cls": "android.view.ViewGroup",
+                                                  "b": [
+                                                   0,
+                                                   136,
+                                                   1080,
+                                                   2211
+                                                  ],
+                                                  "kids": [
+                                                   {
+                                                    "cls": "android.widget.FrameLayout",
+                                                    "b": [
+                                                     0,
+                                                     136,
+                                                     1080,
+                                                     2211
+                                                    ],
+                                                    "kids": [
+                                                     {
+                                                      "cls": "android.widget.FrameLayout",
+                                                      "b": [
+                                                       0,
+                                                       136,
+                                                       1080,
+                                                       2211
+                                                      ]
+                                                     }
+                                                    ]
+                                                   }
+                                                  ]
+                                                 },
+                                                 {
+                                                  "cls": "android.view.ViewGroup",
+                                                  "b": [
+                                                   0,
+                                                   2211,
+                                                   1080,
+                                                   2211
+                                                  ],
+                                                  "kids": [
+                                                   {
+                                                    "cls": "android.view.ViewGroup",
+                                                    "b": [
+                                                     981,
+                                                     2134,
+                                                     1020,
+                                                     2177
+                                                    ],
+                                                    "kids": [
+                                                     {
+                                                      "id": "clips_media_info_component",
+                                                      "cls": "android.view.ViewGroup",
+                                                      "b": [
+                                                       42,
+                                                       2131,
+                                                       943,
+                                                       2174
+                                                      ],
+                                                      "kids": [
+                                                       {
+                                                        "cls": "android.view.ViewGroup",
+                                                        "b": [
+                                                         42,
+                                                         2131,
+                                                         943,
+                                                         2174
+                                                        ],
+                                                        "kids": [
+                                                         {
+                                                          "cls": "android.view.ViewGroup",
+                                                          "b": [
+                                                           42,
+                                                           2131,
+                                                           943,
+                                                           2174
+                                                          ],
+                                                          "kids": [
+                                                           {
+                                                            "cls": "android.view.ViewGroup",
+                                                            "vis": false,
+                                                            "b": [
+                                                             42,
+                                                             1758,
+                                                             943,
+                                                             1758
+                                                            ]
+                                                           },
+                                                           {
+                                                            "cls": "android.view.ViewGroup",
+                                                            "b": [
+                                                             271,
+                                                             1801,
+                                                             334,
+                                                             1864
+                                                            ],
+                                                            "kids": [
+                                                             {
+                                                              "cls": "android.view.ViewGroup",
+                                                              "clk": true,
+                                                              "b": [
+                                                               271,
+                                                               1801,
+                                                               334,
+                                                               1864
+                                                              ],
+                                                              "kids": [
+                                                               {
+                                                                "cls": "android.view.ViewGroup",
+                                                                "b": [
+                                                                 271,
+                                                                 1801,
+                                                                 334,
+                                                                 1864
+                                                                ],
+                                                                "kids": [
+                                                                 {
+                                                                  "cls": "android.view.ViewGroup",
+                                                                  "clk": true,
+                                                                  "b": [
+                                                                   271,
+                                                                   1801,
+                                                                   334,
+                                                                   1864
+                                                                  ],
+                                                                  "kids": [
+                                                                   {
+                                                                    "cls": "android.view.ViewGroup",
+                                                                    "vis": false,
+                                                                    "b": [
+                                                                     42,
+                                                                     1791,
+                                                                     366,
+                                                                     1791
+                                                                    ]
+                                                                   },
+                                                                   {
+                                                                    "cls": "android.widget.Button",
+                                                                    "clk": true,
+                                                                    "b": [
+                                                                     271,
+                                                                     1801,
+                                                                     334,
+                                                                     1864
+                                                                    ],
+                                                                    "kids": [
+                                                                     {
+                                                                      "cls": "android.view.ViewGroup",
+                                                                      "b": [
+                                                                       84,
+                                                                       1809,
+                                                                       255,
+                                                                       1856
+                                                                      ]
+                                                                     },
+                                                                     {
+                                                                      "cls": "android.view.ViewGroup",
+                                                                      "vis": false,
+                                                                      "b": [
+                                                                       255,
+                                                                       1832,
+                                                                       271,
+                                                                       1832
+                                                                      ]
+                                                                     },
+                                                                     {
+                                                                      "cls": "android.view.ViewGroup",
+                                                                      "b": [
+                                                                       271,
+                                                                       1801,
+                                                                       334,
+                                                                       1864
+                                                                      ]
+                                                                     }
+                                                                    ]
+                                                                   }
+                                                                  ]
+                                                                 }
+                                                                ]
+                                                               }
+                                                              ]
+                                                             }
+                                                            ]
+                                                           },
+                                                           {
+                                                            "cls": "android.view.ViewGroup",
+                                                            "b": [
+                                                             42,
+                                                             2131,
+                                                             943,
+                                                             2174
+                                                            ],
+                                                            "kids": [
+                                                             {
+                                                              "id": "clips_author_info_component",
+                                                              "cls": "android.view.ViewGroup",
+                                                              "clk": true,
+                                                              "b": [
+                                                               361,
+                                                               1941,
+                                                               538,
+                                                               2017
+                                                              ],
+                                                              "kids": [
+                                                               {
+                                                                "id": "clips_author_info_component",
+                                                                "cls": "android.view.ViewGroup",
+                                                                "clk": true,
+                                                                "b": [
+                                                                 157,
+                                                                 1955,
+                                                                 345,
+                                                                 2003
+                                                                ],
+                                                                "kids": [
+                                                                 {
+                                                                  "cls": "android.view.View",
+                                                                  "b": [
+                                                                   42,
+                                                                   1921,
+                                                                   157,
+                                                                   2036
+                                                                  ]
+                                                                 },
+                                                                 {
+                                                                  "id": "clips_author_profile_pic",
+                                                                  "cls": "android.widget.ImageView",
+                                                                  "clk": true,
+                                                                  "b": [
+                                                                   52,
+                                                                   1931,
+                                                                   147,
+                                                                   2026
+                                                                  ]
+                                                                 },
+                                                                 {
+                                                                  "cls": "android.view.ViewGroup",
+                                                                  "clk": true,
+                                                                  "b": [
+                                                                   157,
+                                                                   1955,
+                                                                   345,
+                                                                   2003
+                                                                  ],
+                                                                  "kids": [
+                                                                   {
+                                                                    "id": "clips_author_username",
+                                                                    "cls": "android.widget.Button",
+                                                                    "clk": true,
+                                                                    "b": [
+                                                                     157,
+                                                                     1955,
+                                                                     345,
+                                                                     2003
+                                                                    ]
+                                                                   }
+                                                                  ]
+                                                                 }
+                                                                ]
+                                                               },
+                                                               {
+                                                                "cls": "android.view.ViewGroup",
+                                                                "clk": true,
+                                                                "b": [
+                                                                 361,
+                                                                 1941,
+                                                                 538,
+                                                                 2017
+                                                                ],
+                                                                "kids": [
+                                                                 {
+                                                                  "id": "inline_follow_button",
+                                                                  "cls": "android.widget.TextView",
+                                                                  "clk": true,
+                                                                  "b": [
+                                                                   361,
+                                                                   1941,
+                                                                   538,
+                                                                   2017
+                                                                  ]
+                                                                 }
+                                                                ]
+                                                               }
+                                                              ]
+                                                             },
+                                                             {
+                                                              "id": "clips_caption_component",
+                                                              "cls": "android.view.ViewGroup",
+                                                              "b": [
+                                                               42,
+                                                               2047,
+                                                               943,
+                                                               2110
+                                                              ],
+                                                              "kids": [
+                                                               {
+                                                                "cls": "android.widget.ScrollView",
+                                                                "b": [
+                                                                 42,
+                                                                 2047,
+                                                                 943,
+                                                                 2110
+                                                                ],
+                                                                "kids": [
+                                                                 {
+                                                                  "cls": "android.view.ViewGroup",
+                                                                  "b": [
+                                                                   42,
+                                                                   2047,
+                                                                   943,
+                                                                   2110
+                                                                  ],
+                                                                  "kids": [
+                                                                   {
+                                                                    "cls": "android.view.ViewGroup",
+                                                                    "clk": true,
+                                                                    "b": [
+                                                                     42,
+                                                                     2047,
+                                                                     943,
+                                                                     2110
+                                                                    ]
+                                                                   }
+                                                                  ]
+                                                                 }
+                                                                ]
+                                                               }
+                                                              ]
+                                                             },
+                                                             {
+                                                              "cls": "android.view.ViewGroup",
+                                                              "b": [
+                                                               42,
+                                                               2131,
+                                                               943,
+                                                               2174
+                                                              ],
+                                                              "kids": [
+                                                               {
+                                                                "cls": "android.view.ViewGroup",
+                                                                "b": [
+                                                                 42,
+                                                                 2131,
+                                                                 943,
+                                                                 2174
+                                                                ],
+                                                                "kids": [
+                                                                 {
+                                                                  "cls": "android.view.ViewGroup",
+                                                                  "clk": true,
+                                                                  "b": [
+                                                                   42,
+                                                                   2131,
+                                                                   943,
+                                                                   2174
+                                                                  ]
+                                                                 }
+                                                                ]
+                                                               }
+                                                              ]
+                                                             }
+                                                            ]
+                                                           }
+                                                          ]
+                                                         }
+                                                        ]
+                                                       }
+                                                      ]
+                                                     },
+                                                     {
+                                                      "id": "clips_ufi_component",
+                                                      "cls": "android.view.ViewGroup",
+                                                      "b": [
+                                                       981,
+                                                       2134,
+                                                       1020,
+                                                       2177
+                                                      ],
+                                                      "kids": [
+                                                       {
+                                                        "cls": "android.view.ViewGroup",
+                                                        "b": [
+                                                         981,
+                                                         2134,
+                                                         1020,
+                                                         2177
+                                                        ],
+                                                        "kids": [
+                                                         {
+                                                          "cls": "android.view.ViewGroup",
+                                                          "b": [
+                                                           943,
+                                                           2016,
+                                                           1059,
+                                                           2132
+                                                          ],
+                                                          "kids": [
+                                                           {
+                                                            "id": "like_button",
+                                                            "cls": "android.widget.ImageView",
+                                                            "clk": true,
+                                                            "b": [
+                                                             943,
+                                                             1345,
+                                                             1059,
+                                                             1461
+                                                            ]
+                                                           },
+                                                           {
+                                                            "id": "like_count",
+                                                            "cls": "android.widget.Button",
+                                                            "clk": true,
+                                                            "b": [
+                                                             943,
+                                                             1461,
+                                                             1059,
+                                                             1523
+                                                            ]
+                                                           },
+                                                           {
+                                                            "id": "comment_button",
+                                                            "cls": "android.widget.ImageView",
+                                                            "clk": true,
+                                                            "b": [
+                                                             943,
+                                                             1523,
+                                                             1059,
+                                                             1639
+                                                            ]
+                                                           },
+                                                           {
+                                                            "id": "comment_count",
+                                                            "cls": "android.widget.Button",
+                                                            "clk": true,
+                                                            "b": [
+                                                             943,
+                                                             1639,
+                                                             1059,
+                                                             1701
+                                                            ]
+                                                           },
+                                                           {
+                                                            "cls": "android.widget.ImageView",
+                                                            "clk": true,
+                                                            "b": [
+                                                             943,
+                                                             1701,
+                                                             1059,
+                                                             1817
+                                                            ]
+                                                           },
+                                                           {
+                                                            "id": "direct_share_button",
+                                                            "cls": "android.widget.ImageView",
+                                                            "clk": true,
+                                                            "b": [
+                                                             943,
+                                                             1838,
+                                                             1059,
+                                                             1954
+                                                            ]
+                                                           },
+                                                           {
+                                                            "id": "ufi_text_component",
+                                                            "cls": "android.widget.Button",
+                                                            "clk": true,
+                                                            "b": [
+                                                             943,
+                                                             1954,
+                                                             1059,
+                                                             2016
+                                                            ]
+                                                           },
+                                                           {
+                                                            "id": "clips_ufi_more_button_component",
+                                                            "cls": "android.widget.ImageView",
+                                                            "clk": true,
+                                                            "b": [
+                                                             943,
+                                                             2016,
+                                                             1059,
+                                                             2132
+                                                            ]
+                                                           }
+                                                          ]
+                                                         },
+                                                         {
+                                                          "cls": "android.view.ViewGroup",
+                                                          "clk": true,
+                                                          "b": [
+                                                           981,
+                                                           2134,
+                                                           1020,
+                                                           2177
+                                                          ],
+                                                          "kids": [
+                                                           {
+                                                            "cls": "android.view.ViewGroup",
+                                                            "b": [
+                                                             981,
+                                                             2134,
+                                                             1020,
+                                                             2177
+                                                            ]
+                                                           }
+                                                          ]
+                                                         }
+                                                        ]
+                                                       }
+                                                      ]
+                                                     }
+                                                    ]
+                                                   },
+                                                   {
+                                                    "cls": "android.view.ViewGroup",
+                                                    "vis": false,
+                                                    "b": [
+                                                     0,
+                                                     2211,
+                                                     1080,
+                                                     2211
+                                                    ]
+                                                   }
+                                                  ]
+                                                 },
+                                                 {
+                                                  "id": "clips_bottom_legibility_gradient_component",
+                                                  "cls": "android.view.ViewGroup",
+                                                  "b": [
+                                                   0,
+                                                   1396,
+                                                   1080,
+                                                   2211
+                                                  ],
+                                                  "kids": [
+                                                   {
+                                                    "cls": "android.view.ViewGroup",
+                                                    "b": [
+                                                     0,
+                                                     1396,
+                                                     1080,
+                                                     2211
+                                                    ]
+                                                   }
+                                                  ]
+                                                 }
+                                                ]
+                                               }
+                                              ]
+                                             }
+                                            ]
+                                           }
+                                          ]
+                                         }
+                                        ]
+                                       }
+                                      ]
+                                     }
+                                    ]
+                                   },
+                                   {
+                                    "id": "clips_viewer_action_bar",
+                                    "cls": "android.widget.RelativeLayout",
+                                    "b": [
+                                     965,
+                                     136,
+                                     1028,
+                                     67
+                                    ],
+                                    "kids": [
+                                     {
+                                      "id": "clips_action_bar_start_action_buttons",
+                                      "cls": "android.widget.LinearLayout",
+                                      "b": [
+                                       0,
+                                       136,
+                                       125,
+                                       98
+                                      ],
+                                      "kids": [
+                                       {
+                                        "cls": "android.widget.ImageView",
+                                        "clk": true,
+                                        "vis": false,
+                                        "b": [
+                                         0,
+                                         136,
+                                         125,
+                                         98
+                                        ]
+                                       }
+                                      ]
+                                     },
+                                     {
+                                      "id": "clips_viewer_action_bar_title_container",
+                                      "cls": "android.widget.LinearLayout",
+                                      "b": [
+                                       738,
+                                       136,
+                                       877,
+                                       67
+                                      ],
+                                      "kids": [
+                                       {
+                                        "id": "action_bar_tab_layout",
+                                        "cls": "android.widget.HorizontalScrollView",
+                                        "vis": false,
+                                        "b": [
+                                         738,
+                                         136,
+                                         877,
+                                         67
+                                        ],
+                                        "kids": [
+                                         {
+                                          "cls": "android.widget.LinearLayout",
+                                          "vis": false,
+                                          "b": [
+                                           738,
+                                           136,
+                                           877,
+                                           67
+                                          ],
+                                          "kids": [
+                                           {
+                                            "cls": "android.widget.LinearLayout",
+                                            "sel": true,
+                                            "vis": false,
+                                            "b": [
+                                             463,
+                                             136,
+                                             495,
+                                             67
+                                            ],
+                                            "kids": [
+                                             {
+                                              "cls": "android.widget.LinearLayout",
+                                              "sel": true,
+                                              "vis": false,
+                                              "b": [
+                                               463,
+                                               136,
+                                               495,
+                                               67
+                                              ],
+                                              "kids": [
+                                               {
+                                                "id": "text1",
+                                                "cls": "android.widget.TextView",
+                                                "sel": true,
+                                                "vis": false,
+                                                "b": [
+                                                 247,
+                                                 136,
+                                                 463,
+                                                 80
+                                                ]
+                                               },
+                                               {
+                                                "id": "icon",
+                                                "cls": "android.widget.ImageView",
+                                                "sel": true,
+                                                "vis": false,
+                                                "b": [
+                                                 463,
+                                                 136,
+                                                 495,
+                                                 67
+                                                ]
+                                               }
+                                              ]
+                                             }
+                                            ]
+                                           },
+                                           {
+                                            "cls": "android.widget.LinearLayout",
+                                            "clk": true,
+                                            "vis": false,
+                                            "b": [
+                                             738,
+                                             136,
+                                             877,
+                                             67
+                                            ],
+                                            "kids": [
+                                             {
+                                              "cls": "android.widget.LinearLayout",
+                                              "vis": false,
+                                              "b": [
+                                               738,
+                                               136,
+                                               877,
+                                               67
+                                              ],
+                                              "kids": [
+                                               {
+                                                "id": "text1",
+                                                "cls": "android.widget.TextView",
+                                                "vis": false,
+                                                "b": [
+                                                 521,
+                                                 136,
+                                                 738,
+                                                 80
+                                                ]
+                                               },
+                                               {
+                                                "id": "icon",
+                                                "cls": "android.widget.ImageView",
+                                                "vis": false,
+                                                "b": [
+                                                 738,
+                                                 136,
+                                                 877,
+                                                 67
+                                                ]
+                                               }
+                                              ]
+                                             }
+                                            ]
+                                           }
+                                          ]
+                                         }
+                                        ]
+                                       }
+                                      ]
+                                     },
+                                     {
+                                      "id": "clips_action_bar_end_action_buttons",
+                                      "cls": "android.widget.LinearLayout",
+                                      "b": [
+                                       965,
+                                       136,
+                                       1028,
+                                       67
+                                      ],
+                                      "kids": [
+                                       {
+                                        "cls": "android.widget.FrameLayout",
+                                        "clk": true,
+                                        "vis": false,
+                                        "b": [
+                                         965,
+                                         136,
+                                         1028,
+                                         67
+                                        ],
+                                        "kids": [
+                                         {
+                                          "cls": "android.widget.ImageView",
+                                          "vis": false,
+                                          "b": [
+                                           965,
+                                           136,
+                                           1028,
+                                           67
+                                          ]
+                                         }
+                                        ]
+                                       }
+                                      ]
+                                     }
+                                    ]
+                                   }
+                                  ]
+                                 },
+                                 {
+                                  "id": "clips_footer_mask_container",
+                                  "cls": "android.widget.LinearLayout",
+                                  "vis": false,
+                                  "b": [
+                                   0,
+                                   2211,
+                                   1080,
+                                   2211
+                                  ]
+                                 }
+                                ]
+                               }
+                              ]
+                             }
+                            ]
+                           }
+                          ]
+                         },
+                         {
+                          "cls": "android.widget.FrameLayout",
+                          "vis": false,
+                          "b": [
+                           1080,
+                           136,
+                           1080,
+                           2211
+                          ],
+                          "kids": [
+                           {
+                            "id": "layout_container_swipeable",
+                            "cls": "android.widget.FrameLayout",
+                            "vis": false,
+                            "b": [
+                             1080,
+                             136,
+                             1080,
+                             2211
+                            ]
+                           }
+                          ]
+                         },
+                         {
+                          "cls": "android.widget.FrameLayout",
+                          "vis": false,
+                          "b": [
+                           2160,
+                           136,
+                           1080,
+                           2211
+                          ],
+                          "kids": [
+                           {
+                            "id": "layout_container_swipeable",
+                            "cls": "android.widget.FrameLayout",
+                            "vis": false,
+                            "b": [
+                             2160,
+                             136,
+                             1080,
+                             2211
+                            ]
+                           }
+                          ]
+                         },
+                         {
+                          "cls": "android.widget.FrameLayout",
+                          "vis": false,
+                          "b": [
+                           3240,
+                           136,
+                           1080,
+                           2211
+                          ],
+                          "kids": [
+                           {
+                            "id": "layout_container_swipeable",
+                            "cls": "android.widget.FrameLayout",
+                            "vis": false,
+                            "b": [
+                             3240,
+                             136,
+                             1080,
+                             2211
+                            ]
+                           }
+                          ]
+                         }
+                        ]
+                       }
+                      ]
+                     },
+                     {
+                      "id": "tab_bar_shadow",
+                      "cls": "android.view.View",
+                      "b": [
+                       0,
+                       2210,
+                       1080,
+                       2211
+                      ]
+                     },
+                     {
+                      "id": "tab_bar",
+                      "cls": "android.widget.LinearLayout",
+                      "b": [
+                       933,
+                       2235,
+                       1012,
+                       2314
+                      ],
+                      "kids": [
+                       {
+                        "id": "feed_tab",
+                        "cls": "android.widget.FrameLayout",
+                        "desc": "Home",
+                        "clk": true,
+                        "b": [
+                         76,
+                         2242,
+                         139,
+                         2305
+                        ],
+                        "kids": [
+                         {
+                          "id": "tab_icon",
+                          "cls": "android.widget.ImageView",
+                          "b": [
+                           76,
+                           2242,
+                           139,
+                           2305
+                          ]
+                         }
+                        ]
+                       },
+                       {
+                        "id": "clips_tab",
+                        "cls": "android.widget.FrameLayout",
+                        "desc": "Reels",
+                        "sel": true,
+                        "clk": true,
+                        "b": [
+                         292,
+                         2242,
+                         355,
+                         2305
+                        ],
+                        "kids": [
+                         {
+                          "id": "tab_icon",
+                          "cls": "android.widget.ImageView",
+                          "sel": true,
+                          "b": [
+                           292,
+                           2242,
+                           355,
+                           2305
+                          ]
+                         }
+                        ]
+                       },
+                       {
+                        "id": "direct_tab",
+                        "cls": "android.widget.FrameLayout",
+                        "desc": "Message",
+                        "clk": true,
+                        "b": [
+                         508,
+                         2242,
+                         571,
+                         2305
+                        ],
+                        "kids": [
+                         {
+                          "id": "tab_icon",
+                          "cls": "android.widget.ImageView",
+                          "b": [
+                           508,
+                           2242,
+                           571,
+                           2305
+                          ]
+                         }
+                        ]
+                       },
+                       {
+                        "id": "search_tab",
+                        "cls": "android.widget.FrameLayout",
+                        "desc": "Search and explore",
+                        "clk": true,
+                        "b": [
+                         724,
+                         2242,
+                         787,
+                         2305
+                        ],
+                        "kids": [
+                         {
+                          "id": "tab_icon",
+                          "cls": "android.widget.ImageView",
+                          "b": [
+                           724,
+                           2242,
+                           787,
+                           2305
+                          ]
+                         }
+                        ]
+                       },
+                       {
+                        "id": "profile_tab",
+                        "cls": "android.widget.FrameLayout",
+                        "desc": "Profile",
+                        "clk": true,
+                        "b": [
+                         933,
+                         2235,
+                         1012,
+                         2314
+                        ],
+                        "kids": [
+                         {
+                          "id": "wrapper",
+                          "cls": "android.view.ViewGroup",
+                          "b": [
+                           933,
+                           2235,
+                           1012,
+                           2314
+                          ],
+                          "kids": [
+                           {
+                            "id": "container",
+                            "cls": "android.widget.FrameLayout",
+                            "b": [
+                             933,
+                             2235,
+                             1012,
+                             2314
+                            ],
+                            "kids": [
+                             {
+                              "id": "tab_avatar",
+                              "cls": "android.widget.ImageView",
+                              "b": [
+                               933,
+                               2235,
+                               1012,
+                               2314
+                              ]
+                             }
+                            ]
+                           }
+                          ]
+                         }
+                        ]
+                       }
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               },
+               {
+                "id": "bottom_sheet_camera_container",
+                "cls": "android.widget.FrameLayout",
+                "b": [
+                 0,
+                 136,
+                 1080,
+                 2337
+                ]
+               }
+              ]
+             },
+             {
+              "id": "modal_container",
+              "cls": "android.widget.FrameLayout",
+              "b": [
+               0,
+               0,
+               1080,
+               2337
+              ]
+             },
+             {
+              "id": "overlay_layout_container",
+              "cls": "android.widget.FrameLayout",
+              "b": [
+               0,
+               0,
+               1080,
+               2337
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "note": "Scrubbed fixture: all text and descriptions removed except bottom-tab labels."
+}

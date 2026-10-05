@@ -1,0 +1,1248 @@
+{
+ "savedAt": "2026-10-04T22:04:28.038791",
+ "instagramVersion": "449.0.0.52.84",
+ "screen": "DM_THREAD",
+ "rule": "dm_thread_composer",
+ "windowClass": "com.instagram.modal.ModalActivity",
+ "strictRedaction": true,
+ "root": {
+  "cls": "android.widget.FrameLayout",
+  "b": [
+   0,
+   2337,
+   1080,
+   2337
+  ],
+  "kids": [
+   {
+    "cls": "android.widget.LinearLayout",
+    "b": [
+     0,
+     2337,
+     1080,
+     2337
+    ],
+    "kids": [
+     {
+      "cls": "android.widget.FrameLayout",
+      "b": [
+       0,
+       2337,
+       1080,
+       2337
+      ],
+      "kids": [
+       {
+        "id": "action_bar_root",
+        "cls": "android.widget.LinearLayout",
+        "b": [
+         0,
+         2337,
+         1080,
+         2337
+        ],
+        "kids": [
+         {
+          "id": "content",
+          "cls": "android.widget.FrameLayout",
+          "b": [
+           0,
+           2337,
+           1080,
+           2337
+          ],
+          "kids": [
+           {
+            "id": "layout_container_parent",
+            "cls": "android.view.ViewGroup",
+            "b": [
+             0,
+             2337,
+             1080,
+             2337
+            ],
+            "kids": [
+             {
+              "id": "layout_container_main",
+              "cls": "android.widget.FrameLayout",
+              "b": [
+               0,
+               2337,
+               1080,
+               2337
+              ],
+              "kids": [
+               {
+                "id": "thread_fragment_container",
+                "cls": "android.widget.FrameLayout",
+                "b": [
+                 0,
+                 2337,
+                 1080,
+                 2337
+                ],
+                "kids": [
+                 {
+                  "id": "thread_background_view_container",
+                  "cls": "android.widget.LinearLayout",
+                  "b": [
+                   0,
+                   136,
+                   1080,
+                   2201
+                  ],
+                  "kids": [
+                   {
+                    "id": "thread_background_view",
+                    "cls": "android.widget.ImageView",
+                    "b": [
+                     0,
+                     136,
+                     1080,
+                     2201
+                    ]
+                   }
+                  ]
+                 },
+                 {
+                  "id": "message_actions_fragment",
+                  "cls": "android.widget.FrameLayout",
+                  "b": [
+                   0,
+                   136,
+                   1080,
+                   2337
+                  ]
+                 },
+                 {
+                  "id": "direct_thread_header",
+                  "cls": "android.widget.LinearLayout",
+                  "b": [
+                   933,
+                   136,
+                   1059,
+                   283
+                  ],
+                  "kids": [
+                   {
+                    "id": "header_left_button",
+                    "cls": "android.widget.ImageView",
+                    "clk": true,
+                    "b": [
+                     0,
+                     136,
+                     147,
+                     283
+                    ]
+                   },
+                   {
+                    "id": "header_avatar",
+                    "cls": "android.widget.FrameLayout",
+                    "clk": true,
+                    "b": [
+                     188,
+                     172,
+                     262,
+                     246
+                    ],
+                    "kids": [
+                     {
+                      "id": "header_avatar",
+                      "cls": "android.widget.ImageView",
+                      "b": [
+                       188,
+                       172,
+                       262,
+                       246
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "id": "header_title_subtitle_container",
+                    "cls": "android.widget.Button",
+                    "clk": true,
+                    "b": [
+                     304,
+                     185,
+                     585,
+                     233
+                    ],
+                    "kids": [
+                     {
+                      "id": "header_title",
+                      "cls": "android.widget.Button",
+                      "clk": true,
+                      "b": [
+                       304,
+                       185,
+                       585,
+                       233
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "id": "header_right_buttons",
+                    "cls": "android.widget.LinearLayout",
+                    "b": [
+                     933,
+                     136,
+                     1059,
+                     283
+                    ],
+                    "kids": [
+                     {
+                      "cls": "android.widget.ImageView",
+                      "clk": true,
+                      "b": [
+                       807,
+                       136,
+                       933,
+                       283
+                      ]
+                     },
+                     {
+                      "cls": "android.widget.ImageView",
+                      "clk": true,
+                      "b": [
+                       933,
+                       136,
+                       1059,
+                       283
+                      ]
+                     }
+                    ]
+                   }
+                  ]
+                 },
+                 {
+                  "id": "direct_thread_content_below_action_bar",
+                  "cls": "android.view.ViewGroup",
+                  "b": [
+                   0,
+                   2337,
+                   1080,
+                   2337
+                  ],
+                  "kids": [
+                   {
+                    "id": "thread_toggle_child_fragment_container",
+                    "cls": "android.widget.FrameLayout",
+                    "b": [
+                     0,
+                     2175,
+                     1080,
+                     2175
+                    ],
+                    "kids": [
+                     {
+                      "id": "thread_view_root",
+                      "cls": "android.widget.LinearLayout",
+                      "b": [
+                       0,
+                       2175,
+                       1080,
+                       2175
+                      ],
+                      "kids": [
+                       {
+                        "id": "message_thread_container",
+                        "cls": "android.widget.FrameLayout",
+                        "b": [
+                         0,
+                         2175,
+                         1080,
+                         2175
+                        ],
+                        "kids": [
+                         {
+                          "cls": "android.widget.LinearLayout",
+                          "vis": false,
+                          "b": [
+                           1080,
+                           283,
+                           1080,
+                           283
+                          ]
+                         },
+                         {
+                          "id": "message_list_refresh_container",
+                          "cls": "android.widget.FrameLayout",
+                          "b": [
+                           227,
+                           2133,
+                           227,
+                           2133
+                          ],
+                          "kids": [
+                           {
+                            "id": "message_list",
+                            "cls": "androidx.recyclerview.widget.RecyclerView",
+                            "scr": true,
+                            "b": [
+                             227,
+                             2133,
+                             227,
+                             2133
+                            ],
+                            "kids": [
+                             {
+                              "cls": "android.widget.TextView",
+                              "b": [
+                               0,
+                               283,
+                               1080,
+                               330
+                              ]
+                             },
+                             {
+                              "id": "message_content",
+                              "cls": "android.widget.FrameLayout",
+                              "b": [
+                               158,
+                               1164,
+                               158,
+                               1164
+                              ],
+                              "kids": [
+                               {
+                                "id": "message_content_horizontal_linear_layout",
+                                "cls": "android.widget.LinearLayout",
+                                "b": [
+                                 158,
+                                 1164,
+                                 158,
+                                 1164
+                                ],
+                                "kids": [
+                                 {
+                                  "id": "message_content_vertical_linear_layout",
+                                  "cls": "android.widget.LinearLayout",
+                                  "b": [
+                                   158,
+                                   1164,
+                                   158,
+                                   1164
+                                  ],
+                                  "kids": [
+                                   {
+                                    "id": "message_placeholder_container",
+                                    "cls": "android.widget.LinearLayout",
+                                    "b": [
+                                     158,
+                                     1164,
+                                     158,
+                                     1164
+                                    ],
+                                    "kids": [
+                                     {
+                                      "id": "message_content_horizontal_placeholder_container",
+                                      "cls": "android.widget.LinearLayout",
+                                      "b": [
+                                       179,
+                                       1069,
+                                       242,
+                                       1132
+                                      ],
+                                      "kids": [
+                                       {
+                                        "id": "message_content_shortcut_buttons_container",
+                                        "cls": "android.widget.LinearLayout",
+                                        "b": [
+                                         614,
+                                         773,
+                                         698,
+                                         857
+                                        ],
+                                        "kids": [
+                                         {
+                                          "cls": "android.widget.LinearLayout",
+                                          "b": [
+                                           614,
+                                           773,
+                                           698,
+                                           857
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "forwarding_shortcut_button",
+                                            "cls": "android.widget.ImageView",
+                                            "clk": true,
+                                            "b": [
+                                             614,
+                                             668,
+                                             698,
+                                             752
+                                            ]
+                                           },
+                                           {
+                                            "id": "save_to_collection_shortcut_button",
+                                            "cls": "android.widget.ImageView",
+                                            "clk": true,
+                                            "b": [
+                                             614,
+                                             773,
+                                             698,
+                                             857
+                                            ]
+                                           }
+                                          ]
+                                         }
+                                        ]
+                                       },
+                                       {
+                                        "id": "sender_avatar",
+                                        "cls": "android.widget.ImageView",
+                                        "clk": true,
+                                        "b": [
+                                         47,
+                                         1090,
+                                         121,
+                                         1164
+                                        ]
+                                       },
+                                       {
+                                        "id": "message_content_portrait_xma_container",
+                                        "cls": "android.widget.FrameLayout",
+                                        "b": [
+                                         179,
+                                         1069,
+                                         242,
+                                         1132
+                                        ],
+                                        "kids": [
+                                         {
+                                          "id": "reel_share_item_view",
+                                          "cls": "android.widget.LinearLayout",
+                                          "b": [
+                                           179,
+                                           1069,
+                                           242,
+                                           1132
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "media_constraint_layout",
+                                            "cls": "android.view.ViewGroup",
+                                            "b": [
+                                             179,
+                                             1069,
+                                             242,
+                                             1132
+                                            ],
+                                            "kids": [
+                                             {
+                                              "id": "media_container",
+                                              "cls": "android.widget.FrameLayout",
+                                              "b": [
+                                               147,
+                                               362,
+                                               593,
+                                               1164
+                                              ]
+                                             },
+                                             {
+                                              "id": "image",
+                                              "cls": "android.widget.FrameLayout",
+                                              "b": [
+                                               147,
+                                               1090,
+                                               593,
+                                               1164
+                                              ],
+                                              "kids": [
+                                               {
+                                                "cls": "android.widget.ImageView",
+                                                "b": [
+                                                 147,
+                                                 362,
+                                                 593,
+                                                 1164
+                                                ]
+                                               },
+                                               {
+                                                "id": "legibility_gradient_header",
+                                                "cls": "android.view.View",
+                                                "b": [
+                                                 147,
+                                                 362,
+                                                 593,
+                                                 530
+                                                ]
+                                               },
+                                               {
+                                                "id": "direct_reel_share_legibility_gradient_footer",
+                                                "cls": "android.view.View",
+                                                "b": [
+                                                 147,
+                                                 1090,
+                                                 593,
+                                                 1164
+                                                ]
+                                               }
+                                              ]
+                                             },
+                                             {
+                                              "id": "profile_attribution_container",
+                                              "cls": "android.widget.LinearLayout",
+                                              "b": [
+                                               263,
+                                               403,
+                                               544,
+                                               447
+                                              ],
+                                              "kids": [
+                                               {
+                                                "id": "profile_attribution_picture",
+                                                "cls": "android.widget.ImageView",
+                                                "b": [
+                                                 179,
+                                                 394,
+                                                 242,
+                                                 457
+                                                ]
+                                               },
+                                               {
+                                                "cls": "android.widget.LinearLayout",
+                                                "b": [
+                                                 263,
+                                                 403,
+                                                 544,
+                                                 447
+                                                ],
+                                                "kids": [
+                                                 {
+                                                  "id": "title_text",
+                                                  "cls": "android.widget.TextView",
+                                                  "b": [
+                                                   263,
+                                                   403,
+                                                   544,
+                                                   447
+                                                  ]
+                                                 }
+                                                ]
+                                               }
+                                              ]
+                                             },
+                                             {
+                                              "id": "center_icon",
+                                              "cls": "android.widget.ImageView",
+                                              "b": [
+                                               328,
+                                               721,
+                                               412,
+                                               805
+                                              ]
+                                             },
+                                             {
+                                              "id": "bottom_icon",
+                                              "cls": "android.widget.ImageView",
+                                              "b": [
+                                               179,
+                                               1069,
+                                               242,
+                                               1132
+                                              ]
+                                             }
+                                            ]
+                                           }
+                                          ]
+                                         }
+                                        ]
+                                       }
+                                      ]
+                                     },
+                                     {
+                                      "id": "message_pills_container",
+                                      "cls": "android.widget.LinearLayout",
+                                      "vis": false,
+                                      "b": [
+                                       158,
+                                       1164,
+                                       158,
+                                       1164
+                                      ],
+                                      "kids": [
+                                       {
+                                        "id": "pills_view_container",
+                                        "cls": "android.widget.LinearLayout",
+                                        "vis": false,
+                                        "b": [
+                                         158,
+                                         1164,
+                                         158,
+                                         1164
+                                        ]
+                                       }
+                                      ]
+                                     }
+                                    ]
+                                   }
+                                  ]
+                                 }
+                                ]
+                               }
+                              ]
+                             },
+                             {
+                              "cls": "android.widget.TextView",
+                              "b": [
+                               0,
+                               1196,
+                               1080,
+                               1279
+                              ]
+                             },
+                             {
+                              "id": "message_content",
+                              "cls": "android.widget.FrameLayout",
+                              "b": [
+                               227,
+                               2133,
+                               227,
+                               2133
+                              ],
+                              "kids": [
+                               {
+                                "id": "message_content_horizontal_linear_layout",
+                                "cls": "android.widget.LinearLayout",
+                                "b": [
+                                 227,
+                                 2133,
+                                 227,
+                                 2133
+                                ],
+                                "kids": [
+                                 {
+                                  "id": "message_content_vertical_linear_layout",
+                                  "cls": "android.widget.LinearLayout",
+                                  "b": [
+                                   227,
+                                   2133,
+                                   227,
+                                   2133
+                                  ],
+                                  "kids": [
+                                   {
+                                    "id": "message_placeholder_container",
+                                    "cls": "android.widget.LinearLayout",
+                                    "b": [
+                                     227,
+                                     2133,
+                                     227,
+                                     2133
+                                    ],
+                                    "kids": [
+                                     {
+                                      "id": "message_content_horizontal_placeholder_container",
+                                      "cls": "android.widget.LinearLayout",
+                                      "b": [
+                                       179,
+                                       2018,
+                                       242,
+                                       2081
+                                      ],
+                                      "kids": [
+                                       {
+                                        "id": "message_content_shortcut_buttons_container",
+                                        "cls": "android.widget.LinearLayout",
+                                        "b": [
+                                         614,
+                                         1722,
+                                         698,
+                                         1806
+                                        ],
+                                        "kids": [
+                                         {
+                                          "cls": "android.widget.LinearLayout",
+                                          "b": [
+                                           614,
+                                           1722,
+                                           698,
+                                           1806
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "forwarding_shortcut_button",
+                                            "cls": "android.widget.ImageView",
+                                            "clk": true,
+                                            "b": [
+                                             614,
+                                             1617,
+                                             698,
+                                             1701
+                                            ]
+                                           },
+                                           {
+                                            "id": "save_to_collection_shortcut_button",
+                                            "cls": "android.widget.ImageView",
+                                            "clk": true,
+                                            "b": [
+                                             614,
+                                             1722,
+                                             698,
+                                             1806
+                                            ]
+                                           }
+                                          ]
+                                         }
+                                        ]
+                                       },
+                                       {
+                                        "id": "sender_avatar",
+                                        "cls": "android.widget.ImageView",
+                                        "clk": true,
+                                        "b": [
+                                         47,
+                                         2039,
+                                         121,
+                                         2113
+                                        ]
+                                       },
+                                       {
+                                        "id": "message_content_portrait_xma_container",
+                                        "cls": "android.widget.FrameLayout",
+                                        "b": [
+                                         179,
+                                         2018,
+                                         242,
+                                         2081
+                                        ],
+                                        "kids": [
+                                         {
+                                          "id": "reel_share_item_view",
+                                          "cls": "android.widget.LinearLayout",
+                                          "b": [
+                                           179,
+                                           2018,
+                                           242,
+                                           2081
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "media_constraint_layout",
+                                            "cls": "android.view.ViewGroup",
+                                            "b": [
+                                             179,
+                                             2018,
+                                             242,
+                                             2081
+                                            ],
+                                            "kids": [
+                                             {
+                                              "id": "media_container",
+                                              "cls": "android.widget.FrameLayout",
+                                              "b": [
+                                               147,
+                                               1311,
+                                               593,
+                                               2113
+                                              ]
+                                             },
+                                             {
+                                              "id": "image",
+                                              "cls": "android.widget.FrameLayout",
+                                              "b": [
+                                               147,
+                                               2039,
+                                               593,
+                                               2113
+                                              ],
+                                              "kids": [
+                                               {
+                                                "cls": "android.widget.ImageView",
+                                                "b": [
+                                                 147,
+                                                 1311,
+                                                 593,
+                                                 2113
+                                                ]
+                                               },
+                                               {
+                                                "id": "legibility_gradient_header",
+                                                "cls": "android.view.View",
+                                                "b": [
+                                                 147,
+                                                 1311,
+                                                 593,
+                                                 1479
+                                                ]
+                                               },
+                                               {
+                                                "id": "direct_reel_share_legibility_gradient_footer",
+                                                "cls": "android.view.View",
+                                                "b": [
+                                                 147,
+                                                 2039,
+                                                 593,
+                                                 2113
+                                                ]
+                                               }
+                                              ]
+                                             },
+                                             {
+                                              "id": "profile_attribution_container",
+                                              "cls": "android.widget.LinearLayout",
+                                              "b": [
+                                               263,
+                                               1352,
+                                               459,
+                                               1396
+                                              ],
+                                              "kids": [
+                                               {
+                                                "id": "profile_attribution_picture",
+                                                "cls": "android.widget.ImageView",
+                                                "b": [
+                                                 179,
+                                                 1343,
+                                                 242,
+                                                 1406
+                                                ]
+                                               },
+                                               {
+                                                "cls": "android.widget.LinearLayout",
+                                                "b": [
+                                                 263,
+                                                 1352,
+                                                 459,
+                                                 1396
+                                                ],
+                                                "kids": [
+                                                 {
+                                                  "id": "title_text",
+                                                  "cls": "android.widget.TextView",
+                                                  "b": [
+                                                   263,
+                                                   1352,
+                                                   459,
+                                                   1396
+                                                  ]
+                                                 }
+                                                ]
+                                               }
+                                              ]
+                                             },
+                                             {
+                                              "id": "center_icon",
+                                              "cls": "android.widget.ImageView",
+                                              "b": [
+                                               328,
+                                               1670,
+                                               412,
+                                               1754
+                                              ]
+                                             },
+                                             {
+                                              "id": "bottom_icon",
+                                              "cls": "android.widget.ImageView",
+                                              "b": [
+                                               179,
+                                               2018,
+                                               242,
+                                               2081
+                                              ]
+                                             }
+                                            ]
+                                           }
+                                          ]
+                                         }
+                                        ]
+                                       }
+                                      ]
+                                     },
+                                     {
+                                      "id": "message_pills_container",
+                                      "cls": "android.widget.LinearLayout",
+                                      "b": [
+                                       227,
+                                       2133,
+                                       227,
+                                       2133
+                                      ],
+                                      "kids": [
+                                       {
+                                        "id": "pills_view_container",
+                                        "cls": "android.widget.LinearLayout",
+                                        "vis": false,
+                                        "b": [
+                                         158,
+                                         2113,
+                                         158,
+                                         2113
+                                        ]
+                                       },
+                                       {
+                                        "id": "message_reactions_pill_container",
+                                        "cls": "android.widget.LinearLayout",
+                                        "clk": true,
+                                        "b": [
+                                         227,
+                                         2133,
+                                         227,
+                                         2133
+                                        ],
+                                        "kids": [
+                                         {
+                                          "id": "reaction_add",
+                                          "cls": "android.widget.Button",
+                                          "clk": true,
+                                          "b": [
+                                           190,
+                                           2117,
+                                           222,
+                                           2149
+                                          ],
+                                          "kids": [
+                                           {
+                                            "id": "reaction_add_icon",
+                                            "cls": "android.widget.ImageView",
+                                            "b": [
+                                             190,
+                                             2117,
+                                             222,
+                                             2149
+                                            ]
+                                           }
+                                          ]
+                                         },
+                                         {
+                                          "id": "reactions",
+                                          "cls": "android.widget.LinearLayout",
+                                          "vis": false,
+                                          "b": [
+                                           227,
+                                           2133,
+                                           227,
+                                           2133
+                                          ]
+                                         }
+                                        ]
+                                       }
+                                      ]
+                                     }
+                                    ]
+                                   }
+                                  ]
+                                 }
+                                ]
+                               }
+                              ]
+                             }
+                            ]
+                           }
+                          ]
+                         },
+                         {
+                          "id": "meta_ai_voice_container",
+                          "cls": "android.widget.FrameLayout",
+                          "b": [
+                           0,
+                           283,
+                           1080,
+                           2180
+                          ]
+                         },
+                         {
+                          "cls": "android.widget.LinearLayout",
+                          "vis": false,
+                          "b": [
+                           516,
+                           2196,
+                           563,
+                           2243
+                          ],
+                          "kids": [
+                           {
+                            "cls": "android.widget.ImageView",
+                            "vis": false,
+                            "b": [
+                             516,
+                             2196,
+                             563,
+                             2243
+                            ]
+                           }
+                          ]
+                         },
+                         {
+                          "id": "floating_banner_container",
+                          "cls": "android.widget.FrameLayout",
+                          "vis": false,
+                          "b": [
+                           0,
+                           2175,
+                           1080,
+                           2175
+                          ]
+                         }
+                        ]
+                       }
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "id": "direct_command_picker_container",
+                    "cls": "android.widget.FrameLayout",
+                    "b": [
+                     21,
+                     2164,
+                     1059,
+                     2164
+                    ],
+                    "kids": [
+                     {
+                      "id": "direct_command_picker_corner_layout",
+                      "cls": "android.widget.LinearLayout",
+                      "vis": false,
+                      "b": [
+                       21,
+                       2164,
+                       1059,
+                       2164
+                      ],
+                      "kids": [
+                       {
+                        "id": "direct_command_picker_constraint_layout",
+                        "cls": "android.view.ViewGroup",
+                        "vis": false,
+                        "b": [
+                         21,
+                         2164,
+                         1059,
+                         2164
+                        ],
+                        "kids": [
+                         {
+                          "id": "commands_list",
+                          "cls": "androidx.recyclerview.widget.RecyclerView",
+                          "vis": false,
+                          "b": [
+                           21,
+                           2164,
+                           1059,
+                           2164
+                          ]
+                         }
+                        ]
+                       }
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "id": "message_composer_bar",
+                    "cls": "android.widget.FrameLayout",
+                    "b": [
+                     936,
+                     2221,
+                     1041,
+                     2284
+                    ],
+                    "kids": [
+                     {
+                      "id": "message_composer_reply_bar_container",
+                      "cls": "android.widget.LinearLayout",
+                      "b": [
+                       936,
+                       2221,
+                       1041,
+                       2284
+                      ],
+                      "kids": [
+                       {
+                        "id": "message_composer_tray_container",
+                        "cls": "android.widget.LinearLayout",
+                        "vis": false,
+                        "b": [
+                         0,
+                         2164,
+                         1080,
+                         2164
+                        ]
+                       },
+                       {
+                        "id": "row_thread_composer_container",
+                        "cls": "android.widget.FrameLayout",
+                        "b": [
+                         936,
+                         2221,
+                         1041,
+                         2284
+                        ],
+                        "kids": [
+                         {
+                          "id": "blurred_text_area_background",
+                          "cls": "android.widget.ImageView",
+                          "b": [
+                           21,
+                           2185,
+                           1059,
+                           2316
+                          ]
+                         },
+                         {
+                          "cls": "android.widget.LinearLayout",
+                          "b": [
+                           936,
+                           2221,
+                           1041,
+                           2284
+                          ],
+                          "kids": [
+                           {
+                            "id": "row_thread_composer_textarea_container",
+                            "cls": "android.widget.LinearLayout",
+                            "b": [
+                             936,
+                             2221,
+                             1041,
+                             2284
+                            ],
+                            "kids": [
+                             {
+                              "id": "row_thread_composer_shortcut_viewgroup",
+                              "cls": "android.widget.FrameLayout",
+                              "b": [
+                               37,
+                               2200,
+                               137,
+                               2300
+                              ],
+                              "kids": [
+                               {
+                                "id": "row_thread_composer_button_camera",
+                                "cls": "android.widget.ImageView",
+                                "clk": true,
+                                "b": [
+                                 37,
+                                 2200,
+                                 137,
+                                 2300
+                                ]
+                               }
+                              ]
+                             },
+                             {
+                              "id": "composer_content_container",
+                              "cls": "android.widget.LinearLayout",
+                              "b": [
+                               158,
+                               2185,
+                               621,
+                               2316
+                              ],
+                              "kids": [
+                               {
+                                "id": "row_thread_composer_edittext",
+                                "cls": "android.widget.EditText",
+                                "clk": true,
+                                "b": [
+                                 158,
+                                 2185,
+                                 621,
+                                 2316
+                                ]
+                               }
+                              ]
+                             },
+                             {
+                              "id": "row_thread_composer_buttons_container",
+                              "cls": "android.view.ViewGroup",
+                              "b": [
+                               936,
+                               2221,
+                               1041,
+                               2284
+                              ],
+                              "kids": [
+                               {
+                                "id": "row_thread_composer_voice",
+                                "cls": "android.widget.ImageView",
+                                "clk": true,
+                                "b": [
+                                 621,
+                                 2221,
+                                 726,
+                                 2284
+                                ]
+                               },
+                               {
+                                "id": "row_thread_composer_button_gallery",
+                                "cls": "android.widget.ImageView",
+                                "clk": true,
+                                "b": [
+                                 726,
+                                 2221,
+                                 831,
+                                 2284
+                                ]
+                               },
+                               {
+                                "id": "row_thread_composer_button_sticker",
+                                "cls": "android.widget.ImageView",
+                                "clk": true,
+                                "b": [
+                                 831,
+                                 2221,
+                                 936,
+                                 2284
+                                ]
+                               },
+                               {
+                                "id": "row_thread_composer_button_overflow",
+                                "cls": "android.widget.ImageView",
+                                "clk": true,
+                                "b": [
+                                 936,
+                                 2221,
+                                 1041,
+                                 2284
+                                ]
+                               }
+                              ]
+                             }
+                            ]
+                           }
+                          ]
+                         }
+                        ]
+                       }
+                      ]
+                     }
+                    ]
+                   },
+                   {
+                    "id": "banner_container",
+                    "cls": "android.widget.FrameLayout",
+                    "vis": false,
+                    "b": [
+                     0,
+                     2337,
+                     1080,
+                     2337
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "note": "Scrubbed fixture: all text and descriptions removed except bottom-tab labels."
+}
