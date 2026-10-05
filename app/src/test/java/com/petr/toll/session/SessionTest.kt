@@ -54,6 +54,7 @@ class EventCodecTest {
             TollEvent.TollPaid(at),
             TollEvent.StillHereDismissed(at),
             TollEvent.QuickPassStarted(at),
+            TollEvent.TimeEarned(at, "pushups"),
         )
         for (event in events) assertEquals(event, EventCodec.decode(EventCodec.encode(event)!!))
     }

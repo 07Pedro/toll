@@ -80,11 +80,14 @@ private data class SettingsFile(
     val dayStartHour: Int,
     val quickPassesPerDay: Int,
     val quickPassLength: Long,
+    // Added with earn time (2026-10-05); older files don't have them, so they default.
+    val earnPerTask: Long? = null,
+    val earnCapPerDay: Long? = null,
     val pending: List<PendingFile> = emptyList(),
 ) {
-    fun toModel() = StoredSettings(
-        TollSettings(
-            startDate = LocalDate.parse(startDate),
+    fun toModel(): StoredSettings {
+        val defaults = TollSettings(startDate = LocalDate.parse(startDate))
+        val settings = defaults.copy(
             weekdayStartLimit = Duration.ofSeconds(weekdayStartLimit),
             weekendStartLimit = Duration.ofSeconds(weekendStartLimit),
             floor = Duration.ofSeconds(floor),
@@ -92,9 +95,11 @@ private data class SettingsFile(
             dayStartHour = dayStartHour,
             quickPassesPerDay = quickPassesPerDay,
             quickPassLength = Duration.ofSeconds(quickPassLength),
-        ),
-        pending.map { it.toModel() },
-    )
+            earnPerTask = earnPerTask?.let(Duration::ofSeconds) ?: defaults.earnPerTask,
+            earnCapPerDay = earnCapPerDay?.let(Duration::ofSeconds) ?: defaults.earnCapPerDay,
+        )
+        return StoredSettings(settings, pending.map { it.toModel() })
+    }
 
     companion object {
         fun of(value: StoredSettings): SettingsFile = with(value.settings) {
@@ -107,6 +112,8 @@ private data class SettingsFile(
                 dayStartHour = dayStartHour,
                 quickPassesPerDay = quickPassesPerDay,
                 quickPassLength = quickPassLength.seconds,
+                earnPerTask = earnPerTask.seconds,
+                earnCapPerDay = earnCapPerDay.seconds,
                 pending = value.pending.map(PendingFile::of),
             )
         }
@@ -150,6 +157,8 @@ private data class PatchFile(
     val taper: TaperFile? = null,
     val quickPassesPerDay: Int? = null,
     val quickPassLength: Long? = null,
+    val earnPerTask: Long? = null,
+    val earnCapPerDay: Long? = null,
 ) {
     fun toModel() = SettingsPatch(
         weekdayStartLimit = weekdayStartLimit?.let(Duration::ofSeconds),
@@ -158,6 +167,8 @@ private data class PatchFile(
         taper = taper?.toModel(),
         quickPassesPerDay = quickPassesPerDay,
         quickPassLength = quickPassLength?.let(Duration::ofSeconds),
+        earnPerTask = earnPerTask?.let(Duration::ofSeconds),
+        earnCapPerDay = earnCapPerDay?.let(Duration::ofSeconds),
     )
 
     companion object {
@@ -168,6 +179,8 @@ private data class PatchFile(
             taper = patch.taper?.let(TaperFile::of),
             quickPassesPerDay = patch.quickPassesPerDay,
             quickPassLength = patch.quickPassLength?.seconds,
+            earnPerTask = patch.earnPerTask?.seconds,
+            earnCapPerDay = patch.earnCapPerDay?.seconds,
         )
     }
 }

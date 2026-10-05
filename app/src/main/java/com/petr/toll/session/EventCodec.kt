@@ -16,6 +16,8 @@ data class EventRecord(
     /** Epoch milliseconds. */
     val at: Long,
     val kind: ScreenKind? = null,
+    /** For time_earned: "pushups", "duolingo", "steps". */
+    val task: String? = null,
 )
 
 object EventCodec {
@@ -31,6 +33,7 @@ object EventCodec {
             is TollEvent.TollPaid -> EventRecord(TOLL_PAID, at)
             is TollEvent.StillHereDismissed -> EventRecord(STILL_HERE_DISMISSED, at)
             is TollEvent.QuickPassStarted -> EventRecord(QUICK_PASS_STARTED, at)
+            is TollEvent.TimeEarned -> EventRecord(TIME_EARNED, at, task = event.task)
             is TollEvent.Tick -> return null
         }
         return json.encodeToString(EventRecord.serializer(), record)
@@ -47,6 +50,7 @@ object EventCodec {
             TOLL_PAID -> TollEvent.TollPaid(at)
             STILL_HERE_DISMISSED -> TollEvent.StillHereDismissed(at)
             QUICK_PASS_STARTED -> TollEvent.QuickPassStarted(at)
+            TIME_EARNED -> record.task?.let { TollEvent.TimeEarned(at, it) }
             else -> null
         }
     }
@@ -57,4 +61,5 @@ object EventCodec {
     private const val TOLL_PAID = "toll_paid"
     private const val STILL_HERE_DISMISSED = "still_here_dismissed"
     private const val QUICK_PASS_STARTED = "quick_pass_started"
+    private const val TIME_EARNED = "time_earned"
 }

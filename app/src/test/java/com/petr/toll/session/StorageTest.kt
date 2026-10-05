@@ -55,16 +55,36 @@ class StorageTest {
         val store = SettingsStore(File(temp.root, "settings.json"))
         assertNull(store.load())
         val value = StoredSettings(
-            TollSettings(startDate = day, taper = Taper.Multiply(0.9), quickPassLength = Duration.ofSeconds(150)),
+            TollSettings(
+                startDate = day,
+                taper = Taper.Multiply(0.9),
+                quickPassLength = Duration.ofSeconds(150),
+                earnPerTask = Duration.ofMinutes(5),
+                earnCapPerDay = Duration.ofMinutes(20),
+            ),
             listOf(
                 PendingChange(at, at.plus(Duration.ofHours(24)), SettingsPatch(weekdayStartLimit = Duration.ofMinutes(200))),
                 PendingChange(at, at.plus(Duration.ofHours(24)), SettingsPatch(taper = Taper.Subtract(Duration.ofMinutes(10)))),
+                PendingChange(at, at.plus(Duration.ofHours(24)), SettingsPatch(earnCapPerDay = Duration.ofMinutes(40))),
             ),
         )
         store.save(value)
         assertEquals(value, store.load())
         store.save(value.copy(pending = emptyList()))
         assertEquals(value.copy(pending = emptyList()), store.load())
+    }
+
+    @Test
+    fun `settings saved before earn time load with its defaults`() {
+        val file = File(temp.root, "settings.json")
+        file.writeText(
+            """
+            {"startDate":"2026-10-05","weekdayStartLimit":10800,"weekendStartLimit":18000,"floor":2700,
+             "taper":{"kind":"subtract","amount":1200.0},"dayStartHour":4,"quickPassesPerDay":3,"quickPassLength":180}
+            """.trimIndent(),
+        )
+        val loaded = SettingsStore(file).load()!!.settings
+        assertEquals(TollSettings(startDate = day), loaded)
     }
 
     @Test
