@@ -31,9 +31,12 @@ import com.petr.toll.probe.ProbeOverlay
 import com.petr.toll.probe.SnapshotReader
 import com.petr.toll.rules.Decision
 import com.petr.toll.rules.ScreenKind
+import com.petr.toll.session.FrontAppTimer
 import com.petr.toll.session.SessionTracker
 import com.petr.toll.session.TollRepository
 import com.petr.toll.ui.overlay.TollOverlays
+import android.os.PowerManager
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -52,6 +55,9 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
     private val worker = HandlerThread("toll-reader").apply { start() }
     private val workerHandler = Handler(worker.looper)
     private val tracker = SessionTracker() // worker thread only
+    private val duolingo = FrontAppTimer(DUOLINGO, DUOLINGO_TASK) // worker thread only
+    private val earnCheck = Runnable { scheduleTick() }
+    @Volatile private var screenOn = true
 
     private lateinit var repo: TollRepository
     private lateinit var classifier: ScreenClassifier
@@ -76,11 +82,16 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 Intent.ACTION_SCREEN_OFF -> {
+                    screenOn = false
                     repo.screenOff()
-                    workerHandler.post { tracker.reset() }
+                    workerHandler.post {
+                        tracker.reset()
+                        earnFrom(null)
+                    }
                     showInstagramFront(false)
                 }
                 Intent.ACTION_SCREEN_ON -> {
+                    screenOn = true
                     repo.screenOn()
                     scheduleTick()
                 }
@@ -105,6 +116,7 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
             addAction(Intent.ACTION_SCREEN_ON)
         }
         registerReceiver(screenReceiver, filter, RECEIVER_NOT_EXPORTED)
+        screenOn = getSystemService(PowerManager::class.java).isInteractive
         repo.refresh()
         Log.i(TAG, "connected: ${signatures.rules.size} rules, Instagram ${instagramVersion(this)}")
     }
@@ -148,6 +160,7 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
         lastTick = started
         val root = frontAppRoot()
         val pkg = root?.packageName?.toString()
+        earnFrom(pkg)
         if (root != null && pkg in INSTAGRAM_PACKAGES) {
             readInstagram(root, started)
             return
@@ -202,6 +215,21 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
             lastLogLine = line
         } else if (took > SLOW_TICK_MS) {
             Log.d(TAG, "slow tick: $took ms, ${query.lookups} lookups")
+        }
+    }
+
+    /**
+     * Worker thread. Earn time: every 5 minutes with Duolingo in front and the screen on earns a task. A check is
+     * scheduled for when the current stretch would complete, in case Duolingo sends no events meanwhile.
+     */
+    private fun earnFrom(front: String?) {
+        repeat(duolingo.update(front, screenOn, repo.now())) {
+            Log.i(TAG, "earned: duolingo")
+            repo.earn(EARN_DUOLINGO)
+        }
+        workerHandler.removeCallbacks(earnCheck)
+        duolingo.dueAt()?.let { due ->
+            workerHandler.postDelayed(earnCheck, Duration.between(repo.now(), due).toMillis().coerceAtLeast(0) + 100)
         }
     }
 
@@ -370,6 +398,9 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
         private const val TAP_DELAY_MS = 100L // lets the window manager apply touch-through before the finger lands
         private const val TAP_MS = 50L
         val INSTAGRAM_PACKAGES = setOf("com.instagram.android", "com.instagram.lite")
+        private const val DUOLINGO = "com.duolingo"
+        private const val EARN_DUOLINGO = "duolingo"
+        private val DUOLINGO_TASK: Duration = Duration.ofMinutes(5)
 
         fun instagramVersion(context: Context): String? = try {
             context.packageManager

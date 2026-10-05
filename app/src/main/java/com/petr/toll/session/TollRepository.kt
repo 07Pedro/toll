@@ -64,6 +64,9 @@ class TollRepository private constructor(context: Context) {
     fun tollPaid() = send { TollEvent.TollPaid(it) }
     fun stillHereDismissed() = send { TollEvent.StillHereDismissed(it) }
 
+    /** An earn-time task was completed ("pushups", "duolingo", "steps"); the engine applies the per-day cap. */
+    fun earn(task: String) = send { TollEvent.TimeEarned(it, task) }
+
     // What the home screen does.
 
     /** Week 1 starts today; from now on Toll counts and charges. */
