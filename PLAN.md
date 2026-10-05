@@ -110,7 +110,7 @@ Optional tasks that buy extra minutes, as a healthy alternative to paying tolls.
 - **Phase 0, feasibility probe:** a tiny app Petr installs that shows whether Toll can reliably tell DM inbox/thread, a reel from a DM, feed, Reels tab, Explore and stories apart on Petr's Instagram version. Everything below depends on this.
 - **Phase 1, core:** detect Instagram, classify the screen, count paid minutes and opens, Gate, the tier ladder (typing, "Still here?", moving-dot hold with doubling), reflex penalty, weekly taper, corner timer, Toll home, quick pass, 24 h delay on loosening. Toll stays easy to switch off during Phase 1 so testing isn't painful.
 - **Phase 1.5, earn time:** the tasks above, an "Earn time" card on the home screen, and `TimeEarned` in the engine.
-- **Phase 2, hardening:** greyscale, barcode challenge, self-protection (blocking its own settings pages + 48 h turn-off), coverage of Instagram Lite.
+- **Phase 2, hardening:** greyscale, barcode challenge, coverage of Instagram Lite. (Self-protection and the 24 h turn-off were pulled forward and built on 2026-10-05.)
 
 ### Non-goals
 Other apps, iOS, the Play Store, multiple users, friends or accountability features, cloud sync, analytics, **Instagram in a browser** on the phone, and **Instagram on other devices** (PC browser, tablet).
