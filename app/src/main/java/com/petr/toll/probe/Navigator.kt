@@ -44,7 +44,9 @@ class Navigator(private val navigation: Navigation) {
         val items = (0 until list.childCount).mapNotNull { list.getChild(it) }.filter { it.isVisibleToUser }
         val story = items.firstOrNull { item -> !NavMatch.isSkipped(item.labels(), navigation.storyTray.skipDescs) }
             ?: return NavResult.Done("No friend's story in the stories bar (${items.size} bubbles checked)")
-        return click(story, "first story")
+        // Instagram 449 sometimes *accepts* the accessibility click on a bubble and then does nothing (seen twice on
+        // 2026-10-05), so a click can't be trusted here: always tap like a finger.
+        return tapOn(story, "first story")
     }
 
     /**
@@ -55,9 +57,14 @@ class Navigator(private val navigation: Navigation) {
     private fun click(node: AccessibilityNodeInfo, what: String): NavResult {
         val candidates = node.descendants(maxNodes = 50).filter { it.isClickable }.toList()
         if (candidates.any { it.performAction(AccessibilityNodeInfo.ACTION_CLICK) }) return NavResult.Done("Opened $what")
+        Log.i(TAG, "$what: click refused by ${candidates.size} nodes")
+        return tapOn(node, what)
+    }
+
+    private fun tapOn(node: AccessibilityNodeInfo, what: String): NavResult.Tap {
         val target = node.descendants(maxNodes = 50).firstOrNull { it.entryName() == AVATAR } ?: node
         val rect = Rect().also(target::getBoundsInScreen)
-        Log.i(TAG, "$what: click refused by ${candidates.size} nodes, tapping $rect")
+        Log.i(TAG, "$what: tapping $rect")
         return NavResult.Tap(rect.exactCenterX(), rect.exactCenterY(), what)
     }
 
