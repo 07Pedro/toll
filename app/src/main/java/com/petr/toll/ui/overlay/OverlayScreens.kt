@@ -8,14 +8,12 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -55,6 +53,7 @@ import com.petr.toll.rules.Rules
 import com.petr.toll.rules.Sentences
 import com.petr.toll.rules.Tier
 import com.petr.toll.ui.BarrierStripe
+import com.petr.toll.ui.LadderMeter
 import com.petr.toll.ui.LadderRamp
 import com.petr.toll.ui.LocalTollPalette
 import com.petr.toll.ui.Overpass
@@ -170,46 +169,6 @@ private fun UsageBlock(decision: Decision) {
     }
 }
 
-/**
- * The toll ladder: free to half the limit, then typing, then grey, then holds. The scale runs to 125% of the
- * limit; a marker shows today. Zones are labelled, so colour is never the only cue.
- */
-@Composable
-private fun LadderMeter(paid: Duration, limit: Duration) {
-    val p = LocalTollPalette.current
-    val zones = listOf("Free" to 2f, "Typing" to 1f, "Grey" to 1f, "Holds" to 1f)
-    val scale = 1.25f
-    val position = (paid.toMillis().toFloat() / limit.toMillis().coerceAtLeast(1)).coerceIn(0f, scale) / scale
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        BoxWithConstraints(Modifier.fillMaxWidth().height(18.dp)) {
-            Row(Modifier.fillMaxSize().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                zones.forEachIndexed { i, (_, weight) ->
-                    Box(
-                        Modifier
-                            .weight(weight)
-                            .fillMaxSize()
-                            .background(LadderRamp[i], RoundedCornerShape(4.dp)),
-                    )
-                }
-            }
-            val markerX = maxWidth * position
-            Box(
-                Modifier
-                    .offset(x = (markerX - 3.dp).coerceIn(0.dp, maxWidth - 6.dp))
-                    .width(6.dp)
-                    .fillMaxSize()
-                    .background(p.ink, RoundedCornerShape(3.dp))
-                    .border(2.dp, p.background, RoundedCornerShape(3.dp)),
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-            zones.forEach { (label, weight) ->
-                Text(label, style = MaterialTheme.typography.labelSmall, color = p.muted, modifier = Modifier.weight(weight))
-            }
-        }
-    }
-}
-
 // ---- the hold ----
 
 /**
@@ -217,12 +176,15 @@ private fun LadderMeter(paid: Duration, limit: Duration) {
  * [Rules.HOLD_RESET_AFTER] off the dot starts it over. The progress logic is [Hold], shared with the tests.
  */
 @Composable
-fun HoldScreen(required: Duration, onComplete: () -> Unit, onGiveUp: () -> Unit) {
+fun HoldScreen(hold: Hold, onChange: (Hold) -> Unit, onComplete: () -> Unit, onGiveUp: () -> Unit) {
     val p = LocalTollPalette.current
     val insets = LocalOverlayInsets.current
     val density = LocalDensity.current
+    val required = hold.required
+    // The hold lives in TollOverlays, so it survives the window being hidden for a moment.
+    val current by rememberUpdatedState(hold)
+    val change by rememberUpdatedState(onChange)
     val complete by rememberUpdatedState(onComplete)
-    var hold by remember(required) { mutableStateOf(Hold(required)) }
     var now by remember { mutableStateOf(Instant.now()) }
     var t by remember { mutableFloatStateOf(0f) }
 
@@ -233,7 +195,7 @@ fun HoldScreen(required: Duration, onComplete: () -> Unit, onGiveUp: () -> Unit)
                 t = (frame - start) / 1_000_000_000f
                 now = Instant.now()
             }
-            if (hold.isComplete(now)) {
+            if (current.isComplete(now)) {
                 complete()
                 break
             }
@@ -270,18 +232,18 @@ fun HoldScreen(required: Duration, onComplete: () -> Unit, onGiveUp: () -> Unit)
                         return hypot(position.x - c.x, position.y - c.y) <= dotRadius * 1.8f
                     }
                     var touching = onDot(down.position)
-                    if (touching) hold = hold.press(Instant.now())
+                    if (touching) change(current.press(Instant.now()))
                     while (true) {
                         val event = awaitPointerEvent()
                         val change = event.changes.firstOrNull() ?: break
                         val nowTouching = change.pressed && onDot(change.position)
                         if (nowTouching != touching) {
-                            hold = if (nowTouching) hold.press(Instant.now()) else hold.release(Instant.now())
+                            change(if (nowTouching) current.press(Instant.now()) else current.release(Instant.now()))
                             touching = nowTouching
                         }
                         if (event.changes.none { it.pressed }) break
                     }
-                    if (touching) hold = hold.release(Instant.now())
+                    if (touching) change(current.release(Instant.now()))
                 }
             },
     ) {

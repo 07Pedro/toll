@@ -7,17 +7,16 @@ package com.petr.toll.ui
 object Walkthrough {
     data class Step(val text: String, val note: String? = null)
 
-    const val TITLE = "Re-check"
-    const val INTRO = "A few screens Toll still needs to see after the first walkthrough."
+    const val TITLE = "Saved and profiles"
+    const val INTRO = "Six screens Toll needs to see for the new free rules."
 
     val STEPS = listOf(
-        Step("Your feed, scrolled to the very top, with the round story bubbles showing"),
-        Step("In a chat, open a reel a friend sent"),
-        Step("Swipe up once to the next reel", note = "The panel should turn red: that's paid."),
-        Step("A post (not a reel) someone sent, opened from the chat", note = "Skip if you don't have one."),
-        Step("A story someone sent, opened from the chat", note = "Skip if you don't have one."),
-        Step("Tap a message notification", note = "Skip if none arrives."),
-        Step("Tap a likes or comments notification", note = "Skip if you don't have one."),
+        Step("Your Saved: the list of collections", note = "Your profile, then the menu (three lines), then Saved."),
+        Step("Open one collection, so its grid shows"),
+        Step("Open one saved video or post from that grid"),
+        Step("Swipe up once to the next saved item", note = "Skip if it doesn't move to another item."),
+        Step("On a friend's profile, open one of their posts"),
+        Step("Swipe up once to their next post", note = "Skip if it doesn't move to another post."),
     )
 
     val BUTTON_TESTS = listOf(

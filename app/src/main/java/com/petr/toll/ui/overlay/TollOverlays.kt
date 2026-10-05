@@ -6,10 +6,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.petr.toll.rules.Decision
+import com.petr.toll.rules.Hold
 import com.petr.toll.rules.Price
+import com.petr.toll.rules.Rules
 import com.petr.toll.ui.ChallengeActivity
 import com.petr.toll.ui.TollTheme
 import java.time.Duration
+import java.time.Instant
 
 /**
  * Everything Toll draws over Instagram. The service calls [render] after every engine update; this class picks
@@ -35,8 +38,11 @@ class TollOverlays(private val service: AccessibilityService, private val action
 
     private var decision by mutableStateOf<Decision?>(null)
 
-    /** Length of the hold running inside the gate, or null. */
-    private var holding by mutableStateOf<Duration?>(null)
+    /** The hold running inside the gate, or null. Kept outside the composition so a brief hide doesn't lose it. */
+    private var hold by mutableStateOf<Hold?>(null)
+
+    /** When the overlays were last hidden while a hold was running. */
+    private var hiddenAt: Instant? = null
 
     /** The typing challenge is in front; the gate steps aside until it reports back. */
     private var typing = false
@@ -53,12 +59,14 @@ class TollOverlays(private val service: AccessibilityService, private val action
 
     fun render(decision: Decision) {
         this.decision = decision
+        // Back within the reset window: the hold carries on (the gap counts as off the dot). Later: back to the gate.
+        val gone = hiddenAt
+        if (gone != null && Duration.between(gone, Instant.now()) > Rules.HOLD_RESET_AFTER) hold = null
+        hiddenAt = null
+        if (decision.gate == null) hold = null
         val wantsFull = !typing && (decision.gate != null || decision.stillHere)
-        if (wantsFull) full.show() else {
-            full.hide()
-            holding = null
-        }
-        full.keepScreenOn(holding != null)
+        if (wantsFull) full.show() else full.hide()
+        full.keepScreenOn(hold != null)
         val wantsBadge = !typing && !wantsFull && (decision.showTimer || decision.quickPassLeft != null)
         if (wantsBadge) badge.show() else badge.hide()
     }
@@ -66,7 +74,10 @@ class TollOverlays(private val service: AccessibilityService, private val action
     fun hideAll() {
         full.hide()
         badge.hide()
-        holding = null
+        hold?.let {
+            hold = it.release(Instant.now())
+            if (hiddenAt == null) hiddenAt = Instant.now()
+        }
     }
 
     /** While true, the gate stays visible but touches reach Instagram, for an injected tap. */
@@ -87,7 +98,7 @@ class TollOverlays(private val service: AccessibilityService, private val action
                 ChallengeActivity.start(service, price.sentence)
             }
             is Price.QrAndHold -> {
-                holding = price.hold
+                hold = Hold(price.hold)
                 full.keepScreenOn(true)
             }
         }
@@ -98,17 +109,18 @@ class TollOverlays(private val service: AccessibilityService, private val action
         val d = decision ?: return
         TollTheme(dark = true) {
             val gate = d.gate
-            val hold = holding
+            val running = hold
             when {
-                gate != null && hold != null -> HoldScreen(
-                    required = hold,
+                gate != null && running != null -> HoldScreen(
+                    hold = running,
+                    onChange = { hold = it },
                     onComplete = {
-                        holding = null
+                        hold = null
                         full.keepScreenOn(false)
                         actions.onTollPaid()
                     },
                     onGiveUp = {
-                        holding = null
+                        hold = null
                         full.keepScreenOn(false)
                     },
                 )

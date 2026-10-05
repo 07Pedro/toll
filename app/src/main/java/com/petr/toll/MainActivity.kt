@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Canvas
@@ -30,13 +31,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,21 +56,55 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.petr.toll.probe.DumpStore
 import com.petr.toll.service.TollAccessibilityService
+import com.petr.toll.session.TollRepository
 import com.petr.toll.ui.BarrierStripe
 import com.petr.toll.ui.LocalTollPalette
 import com.petr.toll.ui.TollTheme
 import com.petr.toll.ui.Walkthrough
+import com.petr.toll.ui.home.HomeScreen
+import com.petr.toll.ui.home.SettingsScreen
 
-/** Phase 0 home: switch the probe on, open Instagram, and follow the walkthrough step by step. */
+/** Toll's app: home, settings, and the test mode left over from Phase 0. */
 class MainActivity : ComponentActivity() {
+    private val repo by lazy { TollRepository.get(this) }
     private var resumes by mutableIntStateOf(0)
+
+    private enum class Page { HOME, SETTINGS, TEST }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             TollTheme {
-                ProbeHome(refreshKey = resumes)
+                val home by repo.home.collectAsState()
+                val panelOn by repo.testMode.collectAsState()
+                var page by rememberSaveable { mutableStateOf(Page.HOME) }
+                BackHandler(enabled = page != Page.HOME) { page = Page.HOME }
+                when (page) {
+                    Page.HOME -> HomeScreen(
+                        state = home,
+                        onStart = repo::start,
+                        onQuickPass = repo::quickPass,
+                        onTurnOn = { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
+                        onSettings = { page = Page.SETTINGS },
+                        onTestMode = { page = Page.TEST },
+                    )
+                    Page.SETTINGS -> SettingsScreen(
+                        current = home.settings,
+                        pending = home.pending,
+                        onSave = {
+                            repo.saveSettings(it)
+                            page = Page.HOME
+                        },
+                        onBack = { page = Page.HOME },
+                    )
+                    Page.TEST -> TestModeScreen(
+                        refreshKey = resumes,
+                        panelOn = panelOn,
+                        onPanel = repo::setTestMode,
+                        onBack = { page = Page.HOME },
+                    )
+                }
             }
         }
     }
@@ -73,13 +112,15 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         resumes++
+        repo.refresh()
     }
 }
 
 private const val INSTAGRAM = "com.instagram.android"
 
+/** Phase 0's walkthrough screen, kept for checking new Instagram screens. */
 @Composable
-private fun ProbeHome(refreshKey: Int) {
+private fun TestModeScreen(refreshKey: Int, panelOn: Boolean, onPanel: (Boolean) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     val p = LocalTollPalette.current
     val serviceOn = remember(refreshKey) { isServiceEnabled(context) }
@@ -95,7 +136,8 @@ private fun ProbeHome(refreshKey: Int) {
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Header()
+        Header(onBack)
+        PanelCard(panelOn, onPanel)
         StatusCard(
             serviceOn = serviceOn,
             instagramInstalled = instagram != null,
@@ -118,13 +160,15 @@ private fun ProbeHome(refreshKey: Int) {
 }
 
 @Composable
-private fun Header() {
+private fun Header(onBack: () -> Unit) {
     val p = LocalTollPalette.current
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("TOLL", style = MaterialTheme.typography.displaySmall, color = p.ink)
-            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.width(12.dp))
             Tag("TEST MODE", p.amber)
+            Spacer(Modifier.weight(1f))
+            TextButton(onClick = onBack) { Text("Back", style = MaterialTheme.typography.labelLarge, color = p.muted) }
         }
         BarrierStripe(
             Modifier
@@ -138,6 +182,28 @@ private fun Header() {
             style = MaterialTheme.typography.bodyMedium,
             color = p.muted,
         )
+    }
+}
+
+@Composable
+private fun PanelCard(on: Boolean, onChange: (Boolean) -> Unit) {
+    val p = LocalTollPalette.current
+    Card {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Test panel over Instagram", style = MaterialTheme.typography.titleMedium, color = p.ink)
+                Text(
+                    "Shows Toll's guess for each screen, with Save and Skip. Turn it off for normal use.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = p.muted,
+                )
+            }
+            Switch(
+                checked = on,
+                onCheckedChange = onChange,
+                colors = SwitchDefaults.colors(checkedTrackColor = p.go, checkedThumbColor = Color.White),
+            )
+        }
     }
 }
 

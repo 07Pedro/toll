@@ -32,10 +32,11 @@ Petr spends 3–5 h/day on Instagram on weekdays and up to 8 h/day on weekends. 
 4. **Start near current usage and tighten gradually.** A limit far below today's habit gets the app uninstalled.
 
 ### Rules (week-1 limits and quick pass count approved by Petr; the other numbers are product defaults Petr can change)
-- **Free areas** (don't count toward the limit): the message inbox, chat threads, a single post or reel opened from a chat, and stories. Message notifications open straight into the chat for free.
+- **The rule (Petr, 2026-10-05): places you go on purpose are free; anything that feeds you an endless stream costs.**
+- **Free areas** (don't count toward the limit): the message inbox, chat threads, a single post or reel opened from a chat, stories, **Petr's own profile**, **Saved** (the grid and any single saved item), **other people's profiles** (the profile page and a single post opened from it), and **search results for a typed name**. Message notifications open straight into the chat for free.
 - **Time on Toll's own screens** (gate, challenges, "Still here?") is never paid.
 - **Screens Toll can't recognise** are counted as paid but never gated, so a misread never blocks Petr.
-- **Paid areas:** feed, Reels tab, Explore, swiping onward from a friend's reel into more reels, and profiles.
+- **Paid areas:** the home feed, the Reels tab, the Explore grid of suggestions, and **swiping onward from any single item** (a reel or post from a chat, a saved item, a post from a profile) into the next one.
 - **Daily limit:** week 1 is 3 h on weekdays and 5 h on weekends, down to a floor of 45 min/day. Weeks count in 7-day blocks from the day Toll is set up, and a day counts as a weekend by its Toll day (so 02:00 on Saturday still uses Friday's limit).
 - **Weekly taper: −20 min per week** (Petr's final decision). Weekdays: 3 h, 2 h 40, 2 h 20, 2 h, 1 h 40, 1 h 20, 1 h, then the 45 min floor from week 8. Weekends: 5 h, 4 h 40 … 1 h in week 13, then the 45 min floor from week 14.
 
@@ -72,6 +73,17 @@ Petr spends 3–5 h/day on Instagram on weekdays and up to 8 h/day on weekends. 
 - **Advanced Protection (Android 17)** switches Toll off at once. Toll **never blocks it**, because it's a security feature and Petr must always be able to make the phone safer. When Petr opens that page, Toll shows a one-screen notice ("Turning this on switches Toll off. To pause Toll instead, request a turn-off.") with a plain **Continue** button and no challenge, and logs the event in Toll's history.
 - **Escape routes covered:** Instagram Lite gets the same toll. Browsers are not covered (Petr's decision).
 
+### Earn time (Petr's idea and decision, 2026-10-05)
+Optional tasks that buy extra minutes, as a healthy alternative to paying tolls.
+- **Each task adds +10 min to today's limit**, which moves the whole ladder up (typing, grey and holds all start later). It works at every tier, including over the limit.
+- **Cap: +30 min a day.** Raising the cap or the reward is a loosening change (24 h rule).
+- **Tasks:**
+  - **Push-ups:** 20, counted with the proximity sensor while the phone lies on the floor under Petr's face. A camera-based count can replace it later if the sensor proves too easy to fake.
+  - **Duolingo:** about 5 minutes with Duolingo in front and the screen on, measured by the service. Detecting a finished lesson can come later.
+  - **Walking:** 1,000 steps on the step counter (needs the activity-recognition permission).
+- Earned minutes are logged as their own event, so the home screen and history can show them ("+20 min earned").
+- **Timing:** Phase 1.5, right after the core works on the phone.
+
 ### Screens
 1. **Onboarding:** what Toll does → grant permissions → set week-1 limits (defaults 3 h / 5 h) and the floor → print or show the QR code to stick up somewhere.
 2. **Gate** (shown over Instagram when it lands on a paid screen): today's paid minutes and open count, what this entry costs, what the next one will cost. Buttons: **Messages (free)**, **Stories (free)**, **Pay toll**, **Leave**. Stories needs its own button because the stories tray sits on top of the home feed, which is paid. Toll opens the first story in the tray for you; leaving the story viewer lands back on the gate.
@@ -84,6 +96,7 @@ Petr spends 3–5 h/day on Instagram on weekdays and up to 8 h/day on weekends. 
 ### v1 scope (proposed)
 - **Phase 0, feasibility probe:** a tiny app Petr installs that shows whether Toll can reliably tell DM inbox/thread, a reel from a DM, feed, Reels tab, Explore and stories apart on Petr's Instagram version. Everything below depends on this.
 - **Phase 1, core:** detect Instagram, classify the screen, count paid minutes and opens, Gate, the tier ladder (typing, "Still here?", moving-dot hold with doubling), reflex penalty, weekly taper, corner timer, Toll home, quick pass, 24 h delay on loosening. Toll stays easy to switch off during Phase 1 so testing isn't painful.
+- **Phase 1.5, earn time:** the tasks above, an "Earn time" card on the home screen, and `TimeEarned` in the engine.
 - **Phase 2, hardening:** greyscale, QR-code challenge, self-protection (blocking its own settings pages + 48 h turn-off), coverage of Instagram Lite.
 
 ### Non-goals
