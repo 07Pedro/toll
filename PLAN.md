@@ -1,6 +1,6 @@
 # Toll — plan
 
-Status (end of 2026-10-04): Phase 0 probe is installed on Petr's Pixel and has passed screen classification. Still pending: the Story/DMs button-test retry on the 22:28 build, then Phase 1. Paused until 2026-10-05.
+Status (end of 2026-10-05): Phase 1 (gate, typing, holds, Still here?, timer, quick pass, weekly taper, 24 h rule, home, settings) and earn time (push-ups, walking, Duolingo) are built, tested (115 tests) and installed on Petr's Pixel. Toll is NOT started yet: Petr plans to tap "Start week 1 today" on 2026-10-06. The rehearsal idea is parked. Phase 2 next: greyscale, barcode pass, self-protection, Instagram Lite.
 Toll is an Android app that makes Instagram more expensive to use the more you use it, while messages with friends stay free.
 
 Split: **Product** (features, screens, flows, v1 scope) is written by the session talking with Petr. **Tech** (stack, data model, services, costs, risks) is written by session petr-c6. Each reviews the other's half.
