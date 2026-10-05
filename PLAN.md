@@ -27,7 +27,7 @@ Petr spends 3–5 h/day on Instagram on weekdays and up to 8 h/day on weekends. 
 
 ### Design principles
 1. **The price keeps rising:** with minutes used today, with the number of opens, and week over week.
-2. **You pay by acting, not by waiting:** typing, holding a moving dot, walking to a QR code. Passive waits failed with one sec.
+2. **You pay by acting, not by waiting:** typing, holding a moving dot, walking to a barcode in another room. Passive waits failed with one sec.
 3. **The pain continues inside the app,** not only at the entrance.
 4. **Start near current usage and tighten gradually.** A limit far below today's habit gets the app uninstalled.
 
@@ -49,7 +49,7 @@ Petr spends 3–5 h/day on Instagram on weekdays and up to 8 h/day on weekends. 
   | < 50% | Opens normally. No timer yet. |
   | 50–75% | Before each paid entry, type a sentence exactly (no paste), e.g. "Opening Instagram for the 14th time today." |
   | 75–100% | Before each paid entry, type a longer sentence that also says how long you've spent today ("… I have already spent 2 hours and 20 minutes on it."). While inside, Instagram is greyscale and a full-screen "Still here?" interrupts every 5 min of paid time. |
-  | > 100% | Each 10-min pass costs a QR-code scan (code stuck somewhere in another room) **plus** holding a thumb on a slowly moving dot. The hold doubles with each pass that day, **capped at 30 min**: 1, 2, 4, 8, 16, 30, 30… The cap keeps the "never a hard lock" promise, since uncapped doubling reaches 64 and 128 min by pass 7–8. |
+  | > 100% | Each 10-min pass costs scanning Petr's chosen barcode (an item kept in another room; see "Barcode" below) **plus** holding a thumb on a slowly moving dot. The hold doubles with each pass that day, **capped at 30 min**: 1, 2, 4, 8, 16, 30, 30… The cap keeps the "never a hard lock" promise, since uncapped doubling reaches 64 and 128 min by pass 7–8. |
 
 - **Visit:** one continuous stay in Instagram. Leaving for less than 30 s (a notification glance, a quick app switch) doesn't end it; leaving for longer or turning the screen off does. Moving between free and paid screens inside one visit doesn't start a new visit.
 - **When you pay:** the toll is charged at the first paid screen of a visit. Going feed → DMs → feed in the same visit doesn't charge again.
@@ -59,7 +59,7 @@ Petr spends 3–5 h/day on Instagram on weekdays and up to 8 h/day on weekends. 
 - **What counts as an "open":** the start of a visit that reaches a paid screen.
 - **Crossing a tier mid-visit:** crossing 75% turns on greyscale and "Still here?" immediately. Crossing 100% brings up the gate immediately. Crossing 50% changes nothing until the next visit, because typing is an entry price.
 - **From 75% up, the effects stack:** greyscale covers all of Instagram, chats included (it costs nothing, and switching it on and off between screens would flicker). "Still here?" keeps going over the limit too. Paying any toll restarts the 5-minute "Still here?" count.
-- **Reflex prices by tier:** under 50% → the short sentence; 50–75% → the longer sentence; 75–100% → QR + a hold at the next pass's length; over the limit → the hold gets one extra doubling.
+- **Reflex prices by tier:** under 50% → the short sentence; 50–75% → the longer sentence; 75–100% → barcode + a hold at the next pass's length; over the limit → the hold gets one extra doubling.
 - **Quick pass** (defaults proposed, Petr can adjust):
   - Started only from a button inside the Toll app, not from the Gate. Having to open Toll on purpose keeps it from becoming the new reflex route.
   - Opens Instagram immediately with no challenge, for **3 minutes of clock time from launch** (leaving and coming back doesn't stretch it), with a countdown in the corner. The countdown turns red for the last 30 s.
@@ -73,6 +73,14 @@ Petr spends 3–5 h/day on Instagram on weekdays and up to 8 h/day on weekends. 
 - **Advanced Protection (Android 17)** switches Toll off at once. Toll **never blocks it**, because it's a security feature and Petr must always be able to make the phone safer. When Petr opens that page, Toll shows a one-screen notice ("Turning this on switches Toll off. To pause Toll instead, request a turn-off.") with a plain **Continue** button and no challenge, and logs the event in Toll's history.
 - **Escape routes covered:** Instagram Lite gets the same toll. Browsers are not covered (Petr's decision).
 
+### Barcode instead of a QR code (Petr's decision, 2026-10-05)
+Petr has no printer, so there's no QR code to stick up. Instead:
+- **Enrol once:** Petr picks an everyday item that lives in another room (shampoo in the bathroom, a cereal box in the kitchen) and scans its barcode in Toll. Toll stores that barcode's value.
+- **Over the limit,** each pass means walking to that item and scanning the same barcode, then the hold.
+- Works offline, needs nothing printed or bought. Changing the enrolled item counts as loosening (24 h).
+- Known, accepted bypass: moving the item next to the bed, or a photo of the barcode. Like the QR plan, it's friction, not a lock.
+- Alternatives considered: walking N steps (no setup, easier to fake), an NFC sticker (has to be bought).
+
 ### Earn time (Petr's idea and decision, 2026-10-05)
 Optional tasks that buy extra minutes, as a healthy alternative to paying tolls.
 - **Each task adds +10 min to today's limit**, which moves the whole ladder up (typing, grey and holds all start later). It works at every tier, including over the limit.
@@ -85,9 +93,9 @@ Optional tasks that buy extra minutes, as a healthy alternative to paying tolls.
 - **Timing:** Phase 1.5, right after the core works on the phone.
 
 ### Screens
-1. **Onboarding:** what Toll does → grant permissions → set week-1 limits (defaults 3 h / 5 h) and the floor → print or show the QR code to stick up somewhere.
+1. **Onboarding:** what Toll does → grant permissions → set week-1 limits (defaults 3 h / 5 h) and the floor → pick an item in another room and scan its barcode once (Phase 2).
 2. **Gate** (shown over Instagram when it lands on a paid screen): today's paid minutes and open count, what this entry costs, what the next one will cost. Buttons: **Messages (free)**, **Stories (free)**, **Pay toll**, **Leave**. Stories needs its own button because the stories tray sits on top of the home feed, which is paid. Toll opens the first story in the tray for you; leaving the story viewer lands back on the gate.
-3. **Toll challenges:** typing a sentence; thumb hold on a moving dot with a countdown; QR scan.
+3. **Toll challenges:** typing a sentence; thumb hold on a moving dot with a countdown; barcode scan.
 4. **Timer** (Petr's decision, 2026-10-05): a small, circular, translucent dial in the **top-left** of the screen, on paid and unrecognised screens, **only from 50% of the daily limit**. It shows today's paid time against the limit. It never takes touches. During a quick pass, the quick-pass countdown takes its place.
 5. **"Still here?" interrupt.**
 6. **Toll home:** a big **Quick pass** button showing how many are left today ("3 left today"), then today (paid minutes, opens, current tier), this week's limit, a week-by-week trend.
@@ -97,7 +105,7 @@ Optional tasks that buy extra minutes, as a healthy alternative to paying tolls.
 - **Phase 0, feasibility probe:** a tiny app Petr installs that shows whether Toll can reliably tell DM inbox/thread, a reel from a DM, feed, Reels tab, Explore and stories apart on Petr's Instagram version. Everything below depends on this.
 - **Phase 1, core:** detect Instagram, classify the screen, count paid minutes and opens, Gate, the tier ladder (typing, "Still here?", moving-dot hold with doubling), reflex penalty, weekly taper, corner timer, Toll home, quick pass, 24 h delay on loosening. Toll stays easy to switch off during Phase 1 so testing isn't painful.
 - **Phase 1.5, earn time:** the tasks above, an "Earn time" card on the home screen, and `TimeEarned` in the engine.
-- **Phase 2, hardening:** greyscale, QR-code challenge, self-protection (blocking its own settings pages + 48 h turn-off), coverage of Instagram Lite.
+- **Phase 2, hardening:** greyscale, barcode challenge, self-protection (blocking its own settings pages + 48 h turn-off), coverage of Instagram Lite.
 
 ### Non-goals
 Other apps, iOS, the Play Store, multiple users, friends or accountability features, cloud sync, analytics, **Instagram in a browser** on the phone, and **Instagram on other devices** (PC browser, tablet).
