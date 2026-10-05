@@ -78,7 +78,7 @@ class CommitmentsTest {
         assertTrue(lower.pending.isEmpty())
     }
 
-    @Test fun turnOffTakes48Hours() {
-        assertEquals(now.plus(Duration.ofHours(48)), Commitments.turnOffAt(now))
+    @Test fun turnOffTakes24Hours() {
+        assertEquals(now.plus(Duration.ofHours(24)), Commitments.turnOffAt(now))
     }
 }

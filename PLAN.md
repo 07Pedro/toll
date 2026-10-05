@@ -69,7 +69,12 @@ Petr spends 3–5 h/day on Instagram on weekdays and up to 8 h/day on weekends. 
   - Minutes used still count toward today's paid minutes, but quick-pass visits are ignored entirely for the reflex penalty: never reflex themselves, and they don't make the next visit reflex.
   - Raising the number or length of quick passes is a loosening change (24 h delay).
 - **Commitment:** any change that loosens the rules (higher limits, slower taper, turning tiers off) takes effect after 24 h. Tightening applies immediately.
-- **Turning Toll off:** requested inside Toll, takes effect after 48 h. Toll blocks its own pages in Android settings (accessibility toggle, app info, uninstall) until then.
+- **Turning Toll off** (Petr's decision 2026-10-05: **24 h**, not 48 h; built now, ahead of the rest of Phase 2):
+  - Petr taps **Turn off Toll** in Settings. For the next 24 h everything keeps working, and the home screen shows when it will switch off, with **Cancel**.
+  - After 24 h, Toll stops charging and counting and **stays off** until Petr taps **Turn Toll back on**. That works immediately and continues the same plan: same start date, the weekly cut keeps following the calendar.
+  - While Toll is on (including during the 24 h), it protects itself: opening Toll's page in Accessibility settings, its App info page or the uninstall dialog shows a notice ("Toll is protected…") and goes back. The notice offers **Open Toll** to make the request there.
+  - Advanced Protection's page shows its own notice with a plain **Continue** (never blocked).
+  - Before the first Start and after a turn-off, nothing is protected.
 - **Advanced Protection (Android 17)** switches Toll off at once. Toll **never blocks it**, because it's a security feature and Petr must always be able to make the phone safer. When Petr opens that page, Toll shows a one-screen notice ("Turning this on switches Toll off. To pause Toll instead, request a turn-off.") with a plain **Continue** button and no challenge, and logs the event in Toll's history.
 - **Escape routes covered:** Instagram Lite gets the same toll. Browsers are not covered (Petr's decision).
 

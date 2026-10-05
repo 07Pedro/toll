@@ -59,6 +59,6 @@ object Rules {
     /** Loosening a setting takes effect after this long. */
     val LOOSENING_DELAY: Duration = Duration.ofHours(24)
 
-    /** A request to turn Toll off takes effect after this long. */
-    val TURN_OFF_DELAY: Duration = Duration.ofHours(48)
+    /** A request to turn Toll off takes effect after this long (Petr's decision: one day). */
+    val TURN_OFF_DELAY: Duration = Duration.ofHours(24)
 }
