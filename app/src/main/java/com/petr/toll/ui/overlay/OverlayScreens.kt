@@ -63,6 +63,8 @@ import com.petr.toll.ui.short
 import com.petr.toll.ui.summary
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.math.hypot
 import kotlin.math.sin
 
@@ -326,6 +328,80 @@ fun HoldScreen(hold: Hold, onChange: (Hold) -> Unit, onComplete: () -> Unit, onG
         }
     }
 }
+
+// ---- self-protection ----
+
+/** Which Android page the guard is covering. */
+enum class GuardKind {
+    /** Toll's accessibility page, App info, or the uninstall dialog. */
+    PROTECTED,
+
+    /** Advanced Protection, which would switch Toll off at once. Never blocked, only explained. */
+    ADVANCED_PROTECTION,
+}
+
+/**
+ * Shown over Android's Settings when a page would switch Toll off. For Toll's own pages the way out is the
+ * 24-hour request in the app; Advanced Protection is a security feature, so it always gets a plain Continue.
+ */
+@Composable
+fun GuardScreen(kind: GuardKind, turnOffAt: Instant?, onBack: () -> Unit, onOpenToll: () -> Unit, onContinue: () -> Unit) {
+    val p = LocalTollPalette.current
+    val insets = LocalOverlayInsets.current
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(p.background)
+            .padding(top = insets.top),
+    ) {
+        BarrierStripe(Modifier.fillMaxWidth().height(14.dp))
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(start = 24.dp, end = 24.dp, top = 32.dp, bottom = insets.bottom + 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text("TOLL", style = MaterialTheme.typography.labelSmall, color = p.muted)
+            when (kind) {
+                GuardKind.PROTECTED -> {
+                    Text("Toll is protected", style = MaterialTheme.typography.headlineSmall, color = p.ink)
+                    Text(
+                        "Switching Toll off or uninstalling it goes through the Toll app and takes " +
+                            "${Rules.TURN_OFF_DELAY.toHours()} hours, so it never happens on impulse.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = p.muted,
+                    )
+                    if (turnOffAt != null) {
+                        Text(
+                            "Your turn-off request takes effect on " +
+                                "${turnOffAt.atZone(ZoneId.systemDefault()).format(GUARD_WHEN)}.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = p.amber,
+                        )
+                    }
+                    Spacer(Modifier.weight(1f))
+                    BigButton(if (turnOffAt == null) "Open Toll" else "Open Toll to see it", onOpenToll, container = p.ink, content = p.background)
+                    QuietButton("Go back", onBack)
+                }
+                GuardKind.ADVANCED_PROTECTION -> {
+                    Text("This switches Toll off", style = MaterialTheme.typography.headlineSmall, color = p.ink)
+                    Text(
+                        "Turning on Advanced Protection stops Toll straight away. That's your call: it's a security " +
+                            "feature. To pause Toll instead, request a turn-off in the Toll app; it takes " +
+                            "${Rules.TURN_OFF_DELAY.toHours()} hours.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = p.muted,
+                    )
+                    Spacer(Modifier.weight(1f))
+                    BigButton("Go back", onBack, container = p.ink, content = p.background)
+                    QuietButton("Continue", onContinue)
+                }
+            }
+        }
+    }
+}
+
+private val GUARD_WHEN = DateTimeFormatter.ofPattern("EEE d MMM 'at' HH:mm")
 
 // ---- "Still here?" ----
 

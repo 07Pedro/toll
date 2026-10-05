@@ -53,12 +53,14 @@ import com.petr.toll.ui.LocalTollPalette
 import com.petr.toll.ui.Overpass
 import com.petr.toll.ui.short
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 private val DAY = DateTimeFormatter.ofPattern("EEE d MMM")
 private val TIME = DateTimeFormatter.ofPattern("HH:mm")
+private val WHEN = DateTimeFormatter.ofPattern("EEE d MMM 'at' HH:mm")
 
 /** Toll's home: today on the ladder, the quick pass, this week's limits, and the last two weeks. */
 @Composable
@@ -68,6 +70,8 @@ fun HomeScreen(
     onQuickPass: () -> Unit,
     onPushups: () -> Unit,
     onAllowSteps: () -> Unit,
+    onCancelTurnOff: () -> Unit,
+    onTurnBackOn: () -> Unit,
     onTurnOn: () -> Unit,
     onSettings: () -> Unit,
     onTestMode: () -> Unit,
@@ -90,9 +94,15 @@ fun HomeScreen(
             BarrierStripe(Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(2.dp)))
         }
         if (!state.serviceOn) OffCard(onTurnOn)
-        if (!state.enforcing) {
+        val turnOff = state.turnOff
+        if (turnOff is TurnOffState.Off) {
+            TurnedOffCard(state, turnOff, onTurnBackOn)
+            WeekCard(state)
+            HistoryCard(state)
+        } else if (!state.enforcing) {
             StartCard(state, onStart)
         } else {
+            if (turnOff is TurnOffState.Requested) TurnOffBanner(turnOff, onCancelTurnOff)
             TodayCard(state)
             QuickPassCard(state, onQuickPass)
             EarnCard(state, onPushups, onAllowSteps)
@@ -114,6 +124,68 @@ private fun OffCard(onTurnOn: () -> Unit) {
             color = p.muted,
         )
         Primary("Open Accessibility settings", onTurnOn)
+    }
+}
+
+/** A turn-off is on its way: when it happens, and the way to call it off. */
+@Composable
+private fun TurnOffBanner(request: TurnOffState.Requested, onCancel: () -> Unit) {
+    val p = LocalTollPalette.current
+    val left = Duration.between(Instant.now(), request.effectiveAt).coerceAtLeast(Duration.ZERO)
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(p.surface, RoundedCornerShape(20.dp))
+            .border(1.5.dp, p.amber, RoundedCornerShape(20.dp))
+            .padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Eyebrow("TURNING OFF")
+        Text(
+            "Toll switches off on ${request.effectiveAt.atZone(ZoneId.systemDefault()).format(WHEN)}",
+            style = MaterialTheme.typography.titleMedium,
+            color = p.ink,
+        )
+        Text(
+            "In ${left.short()}. Until then everything works as usual. After that it stays off until you turn it back on.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = p.muted,
+        )
+        Row {
+            Spacer(Modifier.weight(1f))
+            Box(
+                Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.5.dp, p.amber, RoundedCornerShape(12.dp))
+                    .clickable(onClick = onCancel)
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+            ) {
+                Text("Keep Toll on", style = MaterialTheme.typography.labelLarge, color = p.ink)
+            }
+        }
+    }
+}
+
+/** After a turn-off: Toll only watches. The plan is kept, and turning back on is immediate. */
+@Composable
+private fun TurnedOffCard(state: HomeState, off: TurnOffState.Off, onTurnBackOn: () -> Unit) {
+    val p = LocalTollPalette.current
+    val s = state.settings
+    val week = Limits.weekNumber(state.todayDate, s.startDate)
+    Card {
+        Eyebrow("TOLL IS OFF")
+        Text(
+            "Off since ${off.since.atZone(ZoneId.systemDefault()).format(WHEN)}",
+            style = MaterialTheme.typography.titleLarge,
+            color = p.ink,
+        )
+        Text(
+            "Instagram is free and nothing is counted. Your plan is kept: turning back on continues in week $week, " +
+                "at ${Limits.limitForWeek(s.weekdayStartLimit, week, s.taper, s.floor).short()} on weekdays.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = p.muted,
+        )
+        Primary("Turn Toll back on", onTurnBackOn)
     }
 }
 

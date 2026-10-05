@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.petr.toll.rules.Commitments
 import com.petr.toll.rules.PendingChange
+import com.petr.toll.rules.Rules
 import com.petr.toll.rules.Taper
 import com.petr.toll.rules.TollSettings
 import com.petr.toll.ui.LocalTollPalette
@@ -46,7 +47,10 @@ import java.time.format.DateTimeFormatter
 fun SettingsScreen(
     current: TollSettings,
     pending: List<PendingChange>,
+    turnOff: TurnOffState,
     onSave: (TollSettings) -> Unit,
+    onRequestTurnOff: () -> Unit,
+    onCancelTurnOff: () -> Unit,
     onBack: () -> Unit,
 ) {
     val p = LocalTollPalette.current
@@ -172,10 +176,71 @@ fun SettingsScreen(
             style = MaterialTheme.typography.bodyMedium,
             color = p.muted,
         )
+
+        TurnOffSection(turnOff, onRequestTurnOff, onCancelTurnOff)
+    }
+}
+
+/** Turning Toll off is a request that takes effect a day later, so it can't happen on impulse. */
+@Composable
+private fun TurnOffSection(turnOff: TurnOffState, onRequest: () -> Unit, onCancel: () -> Unit) {
+    val p = LocalTollPalette.current
+    var confirming by remember { mutableStateOf(false) }
+    Section("TURN OFF TOLL") {
+        when (turnOff) {
+            is TurnOffState.Running -> {
+                Text(
+                    "Toll keeps working for ${Rules.TURN_OFF_DELAY.toHours()} hours after you ask, then switches off " +
+                        "until you turn it back on. You can change your mind until then.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = p.muted,
+                )
+                Outlined(
+                    label = if (confirming) "Tap again: turn off in ${Rules.TURN_OFF_DELAY.toHours()} h" else "Turn off Toll",
+                    color = if (confirming) p.barrier else p.ink,
+                ) {
+                    if (confirming) {
+                        confirming = false
+                        onRequest()
+                    } else {
+                        confirming = true
+                    }
+                }
+            }
+            is TurnOffState.Requested -> {
+                Text(
+                    "Toll switches off on ${turnOff.effectiveAt.atZone(ZoneId.systemDefault()).format(WHEN_LONG)}.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = p.amber,
+                )
+                Outlined(label = "Keep Toll on", color = p.ink, onClick = onCancel)
+            }
+            is TurnOffState.Off -> Text(
+                "Toll is off. You can turn it back on from the home screen.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = p.muted,
+            )
+        }
+    }
+}
+
+@Composable
+private fun Outlined(label: String, color: androidx.compose.ui.graphics.Color, onClick: () -> Unit) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .border(1.5.dp, color, RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, style = MaterialTheme.typography.labelLarge, color = color)
     }
 }
 
 private val WHEN = DateTimeFormatter.ofPattern("EEE HH:mm")
+private val WHEN_LONG = DateTimeFormatter.ofPattern("EEE d MMM 'at' HH:mm")
 
 private fun step(d: Duration, byMinutes: Long, minMinutes: Long, maxMinutes: Long): Duration =
     Duration.ofMinutes((d.toMinutes() + byMinutes).coerceIn(minMinutes, maxMinutes))

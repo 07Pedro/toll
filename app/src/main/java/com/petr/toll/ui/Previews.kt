@@ -45,7 +45,10 @@ import com.petr.toll.ui.home.EarnState
 import com.petr.toll.ui.home.HomeScreen
 import com.petr.toll.ui.home.HomeState
 import com.petr.toll.ui.home.SettingsScreen
+import com.petr.toll.ui.home.TurnOffState
 import com.petr.toll.ui.overlay.GateScreen
+import com.petr.toll.ui.overlay.GuardKind
+import com.petr.toll.ui.overlay.GuardScreen
 import com.petr.toll.ui.overlay.HoldScreen
 import com.petr.toll.ui.overlay.LocalOverlayInsets
 import com.petr.toll.ui.overlay.OverlayInsets
@@ -153,7 +156,12 @@ private fun sample(
 
 private fun sampleSettings(weeksIn: Long) = TollSettings(startDate = TODAY.minusDays(7 * weeksIn + 2))
 
-private fun sampleHome(enforcing: Boolean, today: Decision?, quickPassesLeft: Int = 2): HomeState {
+private fun sampleHome(
+    enforcing: Boolean,
+    today: Decision?,
+    quickPassesLeft: Int = 2,
+    turnOff: TurnOffState = TurnOffState.Running,
+): HomeState {
     val settings = sampleSettings(1)
     val pattern = listOf(250L, 230, 290, 205, 180, 195, 310, 260, 170, 150, 165, 140, 175)
     val history = pattern.mapIndexed { i, paid ->
@@ -169,6 +177,7 @@ private fun sampleHome(enforcing: Boolean, today: Decision?, quickPassesLeft: In
         history = if (enforcing) history else emptyList(),
         pending = emptyList(),
         earn = EarnState(stepsAllowed = enforcing, steps = 420, stepsGoal = 1000, duolingo = min(3), duolingoGoal = min(5)),
+        turnOff = turnOff,
     )
 }
 
@@ -207,22 +216,39 @@ private fun previewPages(): List<PreviewPage> {
         },
         PreviewPage("Timer dial and quick pass, top left", dark = null) { DialSheet(limit) },
         PreviewPage("Home: before Start", dark = null) {
-            HomeScreen(sampleHome(enforcing = false, today = null), {}, {}, {}, {}, {}, {}, {})
+            HomeScreen(sampleHome(enforcing = false, today = null), {}, {}, {}, {}, {}, {}, {}, {}, {})
         },
         PreviewPage("Home: a day in progress", dark = null) {
-            HomeScreen(sampleHome(enforcing = true, today = sample(108, limit, opens = 11)), {}, {}, {}, {}, {}, {}, {})
+            HomeScreen(sampleHome(enforcing = true, today = sample(108, limit, opens = 11)), {}, {}, {}, {}, {}, {}, {}, {}, {})
         },
         PreviewPage("Home: no quick passes left", dark = null) {
-            HomeScreen(sampleHome(enforcing = true, today = sample(170, limit, opens = 19), quickPassesLeft = 0), {}, {}, {}, {}, {}, {}, {})
+            HomeScreen(sampleHome(enforcing = true, today = sample(170, limit, opens = 19), quickPassesLeft = 0), {}, {}, {}, {}, {}, {}, {}, {}, {})
         },
         PreviewPage("Settings, with a change waiting", dark = null) {
             val s = sampleSettings(1)
             SettingsScreen(
                 current = s,
                 pending = listOf(PendingChange(NOW, NOW.plus(Duration.ofHours(21)), SettingsPatch(quickPassesPerDay = 4))),
+                turnOff = TurnOffState.Running,
                 onSave = {},
+                onRequestTurnOff = {},
+                onCancelTurnOff = {},
                 onBack = {},
             )
+        },
+        PreviewPage("Home: turning off in 23 h", dark = null) {
+            val off = TurnOffState.Requested(NOW.minus(Duration.ofHours(1)), NOW.plus(Duration.ofHours(23)))
+            HomeScreen(sampleHome(enforcing = true, today = sample(60, limit, opens = 5), turnOff = off), {}, {}, {}, {}, {}, {}, {}, {}, {})
+        },
+        PreviewPage("Home: Toll is off", dark = null) {
+            val off = TurnOffState.Off(NOW.minus(Duration.ofHours(5)))
+            HomeScreen(sampleHome(enforcing = false, today = null, turnOff = off), {}, {}, {}, {}, {}, {}, {}, {}, {})
+        },
+        PreviewPage("Guard: Toll's own settings", dark = true) {
+            GuardScreen(GuardKind.PROTECTED, turnOffAt = null, onBack = {}, onOpenToll = {}, onContinue = {})
+        },
+        PreviewPage("Guard: Advanced Protection", dark = true) {
+            GuardScreen(GuardKind.ADVANCED_PROTECTION, turnOffAt = null, onBack = {}, onOpenToll = {}, onContinue = {})
         },
     )
 }

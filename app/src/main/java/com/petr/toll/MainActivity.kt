@@ -97,6 +97,8 @@ class MainActivity : ComponentActivity() {
                         onQuickPass = repo::quickPass,
                         onPushups = { startActivity(Intent(this@MainActivity, PushupActivity::class.java)) },
                         onAllowSteps = { stepsPermission.launch(Manifest.permission.ACTIVITY_RECOGNITION) },
+                        onCancelTurnOff = repo::cancelTurnOff,
+                        onTurnBackOn = repo::turnBackOn,
                         onTurnOn = { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
                         onSettings = { page = Page.SETTINGS },
                         onTestMode = { page = Page.TEST },
@@ -104,10 +106,13 @@ class MainActivity : ComponentActivity() {
                     Page.SETTINGS -> SettingsScreen(
                         current = home.settings,
                         pending = home.pending,
+                        turnOff = home.turnOff,
                         onSave = {
                             repo.saveSettings(it)
                             page = Page.HOME
                         },
+                        onRequestTurnOff = repo::requestTurnOff,
+                        onCancelTurnOff = repo::cancelTurnOff,
                         onBack = { page = Page.HOME },
                     )
                     Page.TEST -> TestModeScreen(

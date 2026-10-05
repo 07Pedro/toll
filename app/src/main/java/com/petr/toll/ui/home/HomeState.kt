@@ -4,6 +4,7 @@ import com.petr.toll.rules.Decision
 import com.petr.toll.rules.PendingChange
 import com.petr.toll.rules.TollSettings
 import java.time.Duration
+import java.time.Instant
 import java.time.LocalDate
 
 /** One finished or ongoing Toll day, for the history chart. */
@@ -24,6 +25,18 @@ data class EarnState(
     val duolingoGoal: Duration,
 )
 
+/** Where Toll stands on being switched off. A turn-off waits [com.petr.toll.rules.Rules.TURN_OFF_DELAY]. */
+sealed class TurnOffState {
+    /** On (or not started yet: see [HomeState.enforcing]). */
+    object Running : TurnOffState()
+
+    /** Petr asked to turn Toll off; it keeps working until [effectiveAt]. */
+    data class Requested(val requestedAt: Instant, val effectiveAt: Instant) : TurnOffState()
+
+    /** Switched off after the wait; stays off until Petr turns it back on. */
+    data class Off(val since: Instant) : TurnOffState()
+}
+
 /** Everything the home screen shows. Filled by the repository; the screen only reads it. */
 data class HomeState(
     /** Toll's accessibility service is switched on. */
@@ -39,4 +52,5 @@ data class HomeState(
     val history: List<DaySummary>,
     val pending: List<PendingChange>,
     val earn: EarnState,
+    val turnOff: TurnOffState,
 )

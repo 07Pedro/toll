@@ -34,6 +34,15 @@ class TollOverlays(private val service: AccessibilityService, private val action
         fun onTollPaid()
 
         fun onStillHereDismissed()
+
+        /** Guard "Go back": leave the protected page (press Back). */
+        fun onGuardBack()
+
+        /** Guard "Open Toll": open the app, where a turn-off can be requested. */
+        fun onGuardOpenToll()
+
+        /** Guard "Continue": Advanced Protection only. Just let Petr carry on. */
+        fun onGuardContinue()
     }
 
     private var decision by mutableStateOf<Decision?>(null)
@@ -48,6 +57,10 @@ class TollOverlays(private val service: AccessibilityService, private val action
     private var typing = false
 
     private val full = OverlayWindow(service, OverlayWindow.Kind.FULL_SCREEN) { Full() }
+
+    /** The page being guarded and, if a turn-off is pending, when it takes effect. */
+    private var guard by mutableStateOf<Pair<GuardKind, Instant?>?>(null)
+    private val guardWindow = OverlayWindow(service, OverlayWindow.Kind.FULL_SCREEN) { Guard() }
     private val badge = OverlayWindow(service, OverlayWindow.Kind.BADGE) { Badge() }
 
     init {
@@ -83,9 +96,21 @@ class TollOverlays(private val service: AccessibilityService, private val action
     /** While true, the gate stays visible but touches reach Instagram, for an injected tap. */
     fun touchThrough(enabled: Boolean) = full.touchThrough(enabled)
 
+    /** Covers a Settings page that would switch Toll off. The service decides when; call [hideGuard] when it's gone. */
+    fun showGuard(kind: GuardKind, turnOffAt: Instant?) {
+        guard = kind to turnOffAt
+        guardWindow.show()
+    }
+
+    fun hideGuard() {
+        guard = null
+        guardWindow.hide()
+    }
+
     /** Call when the service unbinds. */
     fun release() {
         hideAll()
+        hideGuard()
         ChallengeResult.clear()
     }
 
@@ -134,6 +159,29 @@ class TollOverlays(private val service: AccessibilityService, private val action
                 )
                 d.stillHere -> StillHereScreen(d, onContinue = actions::onStillHereDismissed, onLeave = actions::onLeave)
             }
+        }
+    }
+
+    @Composable
+    private fun Guard() {
+        val (kind, turnOffAt) = guard ?: return
+        TollTheme(dark = true) {
+            GuardScreen(
+                kind = kind,
+                turnOffAt = turnOffAt,
+                onBack = {
+                    hideGuard()
+                    actions.onGuardBack()
+                },
+                onOpenToll = {
+                    hideGuard()
+                    actions.onGuardOpenToll()
+                },
+                onContinue = {
+                    hideGuard()
+                    actions.onGuardContinue()
+                },
+            )
         }
     }
 
