@@ -98,6 +98,8 @@ data class Decision(
     val showTimer: Boolean,
     /** Non-null while a quick pass runs: show this countdown instead of the timer. */
     val quickPassLeft: Duration?,
+    /** Full length of a quick pass, for drawing the countdown. */
+    val quickPassLength: Duration,
     val quickPassesLeft: Int,
     /** Paid time left on the current bought pass, if any. */
     val passLeft: Duration?,
@@ -150,6 +152,7 @@ class TollEngine(private val zone: ZoneId) {
             showTimer = inside && !quickPass && tier >= Tier.TYPING &&
                 (state.screen == ScreenKind.PAID || state.screen == ScreenKind.UNKNOWN),
             quickPassLeft = state.quickPassUntil?.takeIf { quickPass }?.let { Duration.between(at, it) },
+            quickPassLength = settings.quickPassLength,
             quickPassesLeft = (settings.quickPassesPerDay - state.quickPassesUsedToday).coerceAtLeast(0),
             passLeft = visit?.passBudget,
             nextChangeAt = nextStop(state, at, settings),

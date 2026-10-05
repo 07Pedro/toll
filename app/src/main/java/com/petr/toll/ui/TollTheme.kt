@@ -87,9 +87,14 @@ private val TollTypography = Typography(
     labelSmall = TextStyle(fontFamily = Overpass, fontWeight = FontWeight.SemiBold, fontSize = 11.sp, lineHeight = 14.sp, letterSpacing = 0.1.em),
 )
 
+/**
+ * The toll ladder as one red getting stronger: free, typing, grey, holds. Validated as an ordinal ramp on the
+ * dark surface (one hue, monotone lightness, every step clears the background). Used on always-dark overlays.
+ */
+val LadderRamp = listOf(Color(0xFF6E3A3F), Color(0xFF9E464C), Color(0xFFD05158), Color(0xFFFF6B70))
+
 @Composable
-fun TollTheme(content: @Composable () -> Unit) {
-    val dark = isSystemInDarkTheme()
+fun TollTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val p = if (dark) DarkPalette else LightPalette
     val colors = if (dark) {
         darkColorScheme(

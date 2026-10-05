@@ -1,0 +1,464 @@
+package com.petr.toll.ui.overlay
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.petr.toll.rules.Decision
+import com.petr.toll.rules.Gate
+import com.petr.toll.rules.Hold
+import com.petr.toll.rules.Price
+import com.petr.toll.rules.Rules
+import com.petr.toll.rules.Sentences
+import com.petr.toll.rules.Tier
+import com.petr.toll.ui.BarrierStripe
+import com.petr.toll.ui.LadderRamp
+import com.petr.toll.ui.LocalTollPalette
+import com.petr.toll.ui.Overpass
+import com.petr.toll.ui.clock
+import com.petr.toll.ui.short
+import com.petr.toll.ui.summary
+import java.time.Duration
+import java.time.Instant
+import kotlin.math.hypot
+import kotlin.math.sin
+
+// ---- the gate ----
+
+@Composable
+fun GateScreen(
+    decision: Decision,
+    gate: Gate,
+    onMessages: () -> Unit,
+    onStories: () -> Unit,
+    onPay: () -> Unit,
+    onLeave: () -> Unit,
+) {
+    val p = LocalTollPalette.current
+    val insets = LocalOverlayInsets.current
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(p.background)
+            .padding(top = insets.top),
+    ) {
+        BarrierStripe(Modifier.fillMaxWidth().height(14.dp))
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = insets.bottom + 16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+        ) {
+            Text("TOLL", style = MaterialTheme.typography.labelSmall, color = p.muted)
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(headline(gate.price), style = MaterialTheme.typography.headlineSmall, color = p.ink)
+                Text(reason(decision, gate), style = MaterialTheme.typography.bodyMedium, color = p.muted)
+            }
+            UsageBlock(decision)
+            Spacer(Modifier.weight(1f))
+            Text("Free, no toll", style = MaterialTheme.typography.labelSmall, color = p.muted)
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                FreeButton("Messages", onMessages, Modifier.weight(1f))
+                FreeButton("Stories", onStories, Modifier.weight(1f))
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                BigButton(payLabel(gate.price), onPay, container = p.barrier, content = Color.White)
+                Text(
+                    "Coming back within 10 minutes costs ${gate.ifBackSoon.summary()}.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = p.muted,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+            QuietButton("Leave Instagram", onLeave)
+        }
+    }
+}
+
+private fun headline(price: Price): String = when (price) {
+    Price.None -> "Instagram is open"
+    is Price.Typing -> "Type a sentence to get in"
+    is Price.QrAndHold -> "Hold for ${minutes(price.hold)} to get in"
+}
+
+private fun payLabel(price: Price): String = when (price) {
+    Price.None -> "Go in"
+    is Price.Typing -> "Type it"
+    is Price.QrAndHold -> "Start the ${price.hold.toMinutes()}-minute hold"
+}
+
+private fun reason(decision: Decision, gate: Gate): String = when {
+    gate.reflex -> "You left less than 10 minutes ago, so this time costs one step more."
+    decision.tier == Tier.OVER ->
+        "You're over today's limit. Every 10 minutes costs a hold, and each hold is longer than the last."
+    decision.tier == Tier.GREY -> "You've used three quarters of today's limit."
+    else -> "You've used half of today's limit."
+}
+
+private fun minutes(d: Duration): String = if (d.toMinutes() == 1L) "1 minute" else "${d.toMinutes()} minutes"
+
+/** Today's paid time as a hero number, then where it sits on the toll ladder. */
+@Composable
+private fun UsageBlock(decision: Decision) {
+    val p = LocalTollPalette.current
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text(
+                decision.paidToday.short(),
+                fontFamily = Overpass,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 34.sp,
+                color = p.ink,
+            )
+            Text(
+                "  of ${decision.limit.short()} today",
+                style = MaterialTheme.typography.bodyLarge,
+                color = p.muted,
+                modifier = Modifier.padding(bottom = 4.dp),
+            )
+        }
+        LadderMeter(decision.paidToday, decision.limit)
+        Text(
+            "${Sentences.ordinal(decision.opensToday.coerceAtLeast(1))} time in Instagram today",
+            style = MaterialTheme.typography.bodyMedium,
+            color = p.muted,
+        )
+    }
+}
+
+/**
+ * The toll ladder: free to half the limit, then typing, then grey, then holds. The scale runs to 125% of the
+ * limit; a marker shows today. Zones are labelled, so colour is never the only cue.
+ */
+@Composable
+private fun LadderMeter(paid: Duration, limit: Duration) {
+    val p = LocalTollPalette.current
+    val zones = listOf("Free" to 2f, "Typing" to 1f, "Grey" to 1f, "Holds" to 1f)
+    val scale = 1.25f
+    val position = (paid.toMillis().toFloat() / limit.toMillis().coerceAtLeast(1)).coerceIn(0f, scale) / scale
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        BoxWithConstraints(Modifier.fillMaxWidth().height(18.dp)) {
+            Row(Modifier.fillMaxSize().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                zones.forEachIndexed { i, (_, weight) ->
+                    Box(
+                        Modifier
+                            .weight(weight)
+                            .fillMaxSize()
+                            .background(LadderRamp[i], RoundedCornerShape(4.dp)),
+                    )
+                }
+            }
+            val markerX = maxWidth * position
+            Box(
+                Modifier
+                    .offset(x = (markerX - 3.dp).coerceIn(0.dp, maxWidth - 6.dp))
+                    .width(6.dp)
+                    .fillMaxSize()
+                    .background(p.ink, RoundedCornerShape(3.dp))
+                    .border(2.dp, p.background, RoundedCornerShape(3.dp)),
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            zones.forEach { (label, weight) ->
+                Text(label, style = MaterialTheme.typography.labelSmall, color = p.muted, modifier = Modifier.weight(weight))
+            }
+        }
+    }
+}
+
+// ---- the hold ----
+
+/**
+ * Keep a thumb on a slowly drifting dot for [required]. Slipping off pauses; more than
+ * [Rules.HOLD_RESET_AFTER] off the dot starts it over. The progress logic is [Hold], shared with the tests.
+ */
+@Composable
+fun HoldScreen(required: Duration, onComplete: () -> Unit, onGiveUp: () -> Unit) {
+    val p = LocalTollPalette.current
+    val insets = LocalOverlayInsets.current
+    val density = LocalDensity.current
+    val complete by rememberUpdatedState(onComplete)
+    var hold by remember(required) { mutableStateOf(Hold(required)) }
+    var now by remember { mutableStateOf(Instant.now()) }
+    var t by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(required) {
+        val start = withFrameNanos { it }
+        while (true) {
+            withFrameNanos { frame ->
+                t = (frame - start) / 1_000_000_000f
+                now = Instant.now()
+            }
+            if (hold.isComplete(now)) {
+                complete()
+                break
+            }
+        }
+    }
+
+    val dotRadius = with(density) { 30.dp.toPx() }
+    fun dotCenter(size: Size): Offset = Offset(
+        x = size.width / 2 + size.width * 0.3f * sin(t * 0.21f),
+        y = size.height * 0.55f + size.height * 0.16f * sin(t * 0.29f + 1f),
+    )
+
+    val progress = hold.progressAt(now)
+    val left = required - progress
+    val offFor = hold.releasedAt?.let { Duration.between(it, now) }
+    val status = when {
+        hold.pressedSince != null -> "Keep going."
+        offFor != null && progress > Duration.ZERO -> {
+            val secondsLeft = (Rules.HOLD_RESET_AFTER - offFor).seconds.coerceAtLeast(0)
+            "Off the dot. Back on within $secondsLeft s or it starts over."
+        }
+        else -> "Put your thumb on the dot and follow it."
+    }
+
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(p.background)
+            .pointerInput(required) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    fun onDot(position: Offset): Boolean {
+                        val c = dotCenter(Size(size.width.toFloat(), size.height.toFloat()))
+                        return hypot(position.x - c.x, position.y - c.y) <= dotRadius * 1.8f
+                    }
+                    var touching = onDot(down.position)
+                    if (touching) hold = hold.press(Instant.now())
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        val change = event.changes.firstOrNull() ?: break
+                        val nowTouching = change.pressed && onDot(change.position)
+                        if (nowTouching != touching) {
+                            hold = if (nowTouching) hold.press(Instant.now()) else hold.release(Instant.now())
+                            touching = nowTouching
+                        }
+                        if (event.changes.none { it.pressed }) break
+                    }
+                    if (touching) hold = hold.release(Instant.now())
+                }
+            },
+    ) {
+        Canvas(Modifier.fillMaxSize()) {
+            val c = dotCenter(size)
+            val ring = dotRadius + 12.dp.toPx()
+            val fraction = progress.toMillis().toFloat() / required.toMillis().coerceAtLeast(1)
+            drawCircle(p.line, radius = ring, center = c, style = Stroke(5.dp.toPx()))
+            drawArc(
+                color = p.go,
+                startAngle = -90f,
+                sweepAngle = 360f * fraction,
+                useCenter = false,
+                topLeft = Offset(c.x - ring, c.y - ring),
+                size = Size(ring * 2, ring * 2),
+                style = Stroke(5.dp.toPx(), cap = StrokeCap.Round),
+            )
+            drawCircle(if (hold.pressedSince != null) p.go else p.ink, radius = dotRadius, center = c)
+        }
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 24.dp, end = 24.dp, top = insets.top + 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text("TOLL", style = MaterialTheme.typography.labelSmall, color = p.muted)
+            Text("Hold the dot", style = MaterialTheme.typography.headlineSmall, color = p.ink)
+            Text(
+                left.clock(),
+                fontFamily = Overpass,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 48.sp,
+                color = p.ink,
+                style = MaterialTheme.typography.labelMedium,
+            )
+            Text(status, style = MaterialTheme.typography.bodyMedium, color = if (offFor != null) p.amber else p.muted)
+        }
+        Box(
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = insets.bottom + 16.dp, start = 24.dp, end = 24.dp),
+        ) {
+            QuietButton("Give up and go back", onGiveUp)
+        }
+    }
+}
+
+// ---- "Still here?" ----
+
+@Composable
+fun StillHereScreen(decision: Decision, onContinue: () -> Unit, onLeave: () -> Unit) {
+    val p = LocalTollPalette.current
+    val insets = LocalOverlayInsets.current
+    Column(
+        Modifier
+            .fillMaxSize()
+            .background(p.background.copy(alpha = 0.94f))
+            .padding(start = 24.dp, end = 24.dp, top = insets.top + 48.dp, bottom = insets.bottom + 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text("TOLL", style = MaterialTheme.typography.labelSmall, color = p.muted)
+        Text("Still here?", fontFamily = Overpass, fontWeight = FontWeight.ExtraBold, fontSize = 40.sp, color = p.ink)
+        Text(
+            "${decision.paidToday.short()} on Instagram today. Your limit is ${decision.limit.short()}.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = p.muted,
+        )
+        Spacer(Modifier.weight(1f))
+        BigButton("Leave Instagram", onLeave, container = p.ink, content = p.background)
+        QuietButton("Keep scrolling", onContinue)
+    }
+}
+
+// ---- dials (top-left, translucent, never touchable) ----
+
+/** Today's paid time against the limit, shown from half the limit. The ring fills toward the limit. */
+@Composable
+fun TimerDial(decision: Decision) {
+    val left = decision.limit - decision.paidToday
+    val fraction = decision.paidToday.toMillis().toFloat() / decision.limit.toMillis().coerceAtLeast(1)
+    val ring = if (decision.tier >= Tier.GREY) LadderRamp[3] else LadderRamp[2]
+    Dial(
+        fraction = fraction,
+        ring = ring,
+        value = if (left.isNegative) "+${left.negated().toMinutes()}" else "${left.toMinutes()}",
+        unit = if (left.isNegative) "over" else "min",
+    )
+}
+
+/** Quick-pass countdown; the ring empties, and turns red for the last 30 seconds. */
+@Composable
+fun QuickPassDial(left: Duration, length: Duration) {
+    val p = LocalTollPalette.current
+    val ending = left <= Rules.QUICK_PASS_WARNING
+    Dial(
+        fraction = left.toMillis().toFloat() / length.toMillis().coerceAtLeast(1),
+        ring = if (ending) LadderRamp[3] else p.go,
+        value = left.clock(),
+        unit = "pass",
+    )
+}
+
+@Composable
+private fun Dial(fraction: Float, ring: Color, value: String, unit: String) {
+    Box(
+        Modifier
+            .size(52.dp)
+            .alpha(0.9f)
+            .background(Color(0xB316191D), CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(Modifier.fillMaxSize().padding(4.dp)) {
+            val stroke = 3.dp.toPx()
+            val inset = stroke / 2
+            val arcSize = Size(size.width - stroke, size.height - stroke)
+            drawArc(Color(0x33FFFFFF), -90f, 360f, false, Offset(inset, inset), arcSize, style = Stroke(stroke))
+            drawArc(ring, -90f, 360f * fraction.coerceIn(0f, 1f), false, Offset(inset, inset), arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
+        }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                value,
+                fontFamily = Overpass,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = if (value.length > 3) 12.sp else 15.sp,
+                color = Color(0xFFF4F5F6),
+                style = MaterialTheme.typography.labelMedium,
+            )
+            Text(unit, fontFamily = Overpass, fontSize = 8.sp, color = Color(0xFFB8BDC4))
+        }
+    }
+}
+
+// ---- buttons ----
+
+@Composable
+private fun BigButton(label: String, onClick: () -> Unit, container: Color, content: Color) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(container)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, style = MaterialTheme.typography.labelLarge, color = content, fontWeight = FontWeight.ExtraBold)
+    }
+}
+
+@Composable
+private fun FreeButton(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val p = LocalTollPalette.current
+    Column(
+        modifier
+            .height(64.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.5.dp, p.go, RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(label, style = MaterialTheme.typography.labelLarge, color = p.ink)
+        Text("free", style = MaterialTheme.typography.labelSmall, color = p.go)
+    }
+}
+
+@Composable
+private fun QuietButton(label: String, onClick: () -> Unit) {
+    val p = LocalTollPalette.current
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(label, style = MaterialTheme.typography.labelLarge, color = p.muted)
+    }
+}
