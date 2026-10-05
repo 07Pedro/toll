@@ -1,8 +1,10 @@
 package com.petr.toll.session
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
@@ -40,13 +42,17 @@ class TollRepository private constructor(context: Context) {
     private val main = Handler(Looper.getMainLooper())
     private val tick = Runnable { sendNow(TollEvent.Tick(clock.now())) }
 
-    private val homeState = MutableStateFlow(core.home(serviceOn()))
+    private val homeState = MutableStateFlow(core.home(serviceOn(), stepsAllowed()))
     val home: StateFlow<HomeState> = homeState
 
     private val testModeState = MutableStateFlow(!probeOffFlag.exists())
 
     /** Test mode shows the Phase 0 probe panel over Instagram (live screen label, dumps). On until switched off. */
     val testMode: StateFlow<Boolean> = testModeState
+
+    /** Called on the main thread after [refresh], e.g. so the service can start step counting once it's allowed. */
+    @Volatile
+    var onRefresh: (() -> Unit)? = null
 
     /** Called on the session thread after every event while enforcing. The service renders overlays from it. */
     @Volatile
@@ -66,6 +72,26 @@ class TollRepository private constructor(context: Context) {
 
     /** An earn-time task was completed ("pushups", "duolingo", "steps"); the engine applies the per-day cap. */
     fun earn(task: String) = send { TollEvent.TimeEarned(it, task) }
+
+    /** Any app came to the front (for the Duolingo timer). */
+    fun frontApp(packageName: String?) {
+        handler.post {
+            core.frontApp(packageName)
+            afterChange()
+        }
+    }
+
+    /** A step counter reading: steps since the phone booted. */
+    fun steps(totalSinceBoot: Long) {
+        handler.post {
+            core.steps(totalSinceBoot)
+            afterChange()
+        }
+    }
+
+    /** Whether step counting may run (ACTIVITY_RECOGNITION granted). */
+    fun stepsAllowed(): Boolean =
+        app.checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED
 
     // What the home screen does.
 
@@ -98,6 +124,7 @@ class TollRepository private constructor(context: Context) {
     /** Re-checks things Toll isn't told about, such as the accessibility switch. Call from onResume. */
     fun refresh() {
         handler.post { if (core.enforcing) sendNow(TollEvent.Tick(clock.now())) else afterChange() }
+        main.post { onRefresh?.invoke() }
     }
 
     fun setTestMode(on: Boolean) {
@@ -120,7 +147,7 @@ class TollRepository private constructor(context: Context) {
 
     /** Publishes the new state, tells the service, and schedules the next tick. Session thread only. */
     private fun afterChange() {
-        homeState.value = core.home(serviceOn())
+        homeState.value = core.home(serviceOn(), stepsAllowed())
         core.decision?.takeIf { core.enforcing }?.let { onDecision?.invoke(it) }
         handler.removeCallbacks(tick)
         val due = core.nextWakeUp() ?: return

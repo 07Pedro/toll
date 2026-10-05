@@ -31,12 +31,13 @@ import com.petr.toll.probe.ProbeOverlay
 import com.petr.toll.probe.SnapshotReader
 import com.petr.toll.rules.Decision
 import com.petr.toll.rules.ScreenKind
-import com.petr.toll.session.FrontAppTimer
 import com.petr.toll.session.SessionTracker
 import com.petr.toll.session.TollRepository
 import com.petr.toll.ui.overlay.TollOverlays
-import android.os.PowerManager
-import java.time.Duration
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import java.time.LocalDateTime
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
@@ -55,9 +56,12 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
     private val worker = HandlerThread("toll-reader").apply { start() }
     private val workerHandler = Handler(worker.looper)
     private val tracker = SessionTracker() // worker thread only
-    private val duolingo = FrontAppTimer(DUOLINGO, DUOLINGO_TASK) // worker thread only
-    private val earnCheck = Runnable { scheduleTick() }
-    @Volatile private var screenOn = true
+    private var lastFront: String? = null // worker thread only
+    private var stepsListening = false // main thread only
+    private val stepListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) = repo.steps(event.values[0].toLong())
+        override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+    }
 
     private lateinit var repo: TollRepository
     private lateinit var classifier: ScreenClassifier
@@ -82,16 +86,11 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 Intent.ACTION_SCREEN_OFF -> {
-                    screenOn = false
                     repo.screenOff()
-                    workerHandler.post {
-                        tracker.reset()
-                        earnFrom(null)
-                    }
+                    workerHandler.post { tracker.reset() }
                     showInstagramFront(false)
                 }
                 Intent.ACTION_SCREEN_ON -> {
-                    screenOn = true
                     repo.screenOn()
                     scheduleTick()
                 }
@@ -116,7 +115,8 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
             addAction(Intent.ACTION_SCREEN_ON)
         }
         registerReceiver(screenReceiver, filter, RECEIVER_NOT_EXPORTED)
-        screenOn = getSystemService(PowerManager::class.java).isInteractive
+        repo.onRefresh = ::listenForSteps
+        listenForSteps()
         repo.refresh()
         Log.i(TAG, "connected: ${signatures.rules.size} rules, Instagram ${instagramVersion(this)}")
     }
@@ -136,6 +136,8 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
     override fun onUnbind(intent: Intent?): Boolean {
         if (::repo.isInitialized) {
             repo.onDecision = null
+            repo.onRefresh = null
+            if (stepsListening) getSystemService(SensorManager::class.java).unregisterListener(stepListener)
             runCatching { unregisterReceiver(screenReceiver) }
             overlays.release()
             probe.hide()
@@ -160,7 +162,10 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
         lastTick = started
         val root = frontAppRoot()
         val pkg = root?.packageName?.toString()
-        earnFrom(pkg)
+        if (pkg != lastFront) {
+            lastFront = pkg
+            repo.frontApp(pkg)
+        }
         if (root != null && pkg in INSTAGRAM_PACKAGES) {
             readInstagram(root, started)
             return
@@ -219,18 +224,15 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
     }
 
     /**
-     * Worker thread. Earn time: every 5 minutes with Duolingo in front and the screen on earns a task. A check is
-     * scheduled for when the current stretch would complete, in case Duolingo sends no events meanwhile.
+     * Main thread. Earn time from walking: once ACTIVITY_RECOGNITION is granted, listen to the step counter (a running
+     * total since boot, batched by the sensor hub up to a minute). Called on connect and after every refresh().
      */
-    private fun earnFrom(front: String?) {
-        repeat(duolingo.update(front, screenOn, repo.now())) {
-            Log.i(TAG, "earned: duolingo")
-            repo.earn(EARN_DUOLINGO)
-        }
-        workerHandler.removeCallbacks(earnCheck)
-        duolingo.dueAt()?.let { due ->
-            workerHandler.postDelayed(earnCheck, Duration.between(repo.now(), due).toMillis().coerceAtLeast(0) + 100)
-        }
+    private fun listenForSteps() {
+        if (stepsListening || !repo.stepsAllowed()) return
+        val sensors = getSystemService(SensorManager::class.java)
+        val counter = sensors.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) ?: return
+        stepsListening = sensors.registerListener(stepListener, counter, SensorManager.SENSOR_DELAY_NORMAL, STEP_BATCH_US)
+        Log.i(TAG, "step counting: ${if (stepsListening) "on" else "failed"}")
     }
 
     /** Main thread. Toll's windows only ever cover Instagram. */
@@ -398,9 +400,7 @@ class TollAccessibilityService : AccessibilityService(), TollOverlays.Actions, P
         private const val TAP_DELAY_MS = 100L // lets the window manager apply touch-through before the finger lands
         private const val TAP_MS = 50L
         val INSTAGRAM_PACKAGES = setOf("com.instagram.android", "com.instagram.lite")
-        private const val DUOLINGO = "com.duolingo"
-        private const val EARN_DUOLINGO = "duolingo"
-        private val DUOLINGO_TASK: Duration = Duration.ofMinutes(5)
+        private const val STEP_BATCH_US = 60_000_000 // let the sensor hub batch up to a minute of steps
 
         fun instagramVersion(context: Context): String? = try {
             context.packageManager

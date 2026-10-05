@@ -36,7 +36,7 @@ class TollCoreTest {
         assertFalse(core.enforcing)
         assertNull(core.send(TollEvent.Screen(clock, ScreenKind.PAID)))
         assertFalse(core.quickPass())
-        val home = core.home(serviceOn = true)
+        val home = core.home(serviceOn = true, stepsAllowed = false)
         assertFalse(home.enforcing)
         assertNull(home.today)
         assertEquals(LocalDate.parse("2026-10-05"), home.settings.startDate)
@@ -91,6 +91,49 @@ class TollCoreTest {
     }
 
     @Test
+    fun `five minutes of Duolingo earn ten minutes, steps earn per thousand`() {
+        val core = core()
+        core.start()
+        core.frontApp("com.duolingo")
+        advance(5)
+        val afterDuolingo = core.send(TollEvent.Tick(clock))!!
+        assertEquals(Duration.ofMinutes(10), afterDuolingo.earnedToday)
+
+        core.frontApp("com.android.launcher")
+        core.steps(50_000) // first reading only sets the baseline
+        core.steps(50_999)
+        assertEquals(Duration.ofMinutes(10), core.decision!!.earnedToday)
+        assertEquals(999, core.home(serviceOn = true, stepsAllowed = true).earn.steps)
+        core.steps(51_000)
+        assertEquals(Duration.ofMinutes(20), core.decision!!.earnedToday)
+        assertEquals(0, core.home(serviceOn = true, stepsAllowed = true).earn.steps)
+    }
+
+    @Test
+    fun `Duolingo doesn't count with the screen off or before Start`() {
+        val core = core()
+        core.frontApp("com.duolingo")
+        advance(10)
+        core.start()
+        core.frontApp("com.duolingo")
+        core.send(TollEvent.ScreenOff(clock))
+        advance(10)
+        core.send(TollEvent.ScreenOn(clock))
+        assertEquals(Duration.ZERO, core.decision!!.earnedToday)
+        advance(5)
+        assertEquals(Duration.ofMinutes(10), core.send(TollEvent.Tick(clock))!!.earnedToday)
+    }
+
+    @Test
+    fun `step progress survives a restart`() {
+        val first = core()
+        first.start()
+        first.steps(1_000)
+        first.steps(1_600)
+        assertEquals(600, core().home(serviceOn = true, stepsAllowed = true).earn.steps)
+    }
+
+    @Test
     fun `history lists past days from their logs plus today`() {
         val core = core()
         core.start()
@@ -102,7 +145,7 @@ class TollCoreTest {
         advance(5)
         core.send(TollEvent.Tick(clock))
 
-        val history = core.home(serviceOn = true).history
+        val history = core.home(serviceOn = true, stepsAllowed = false).history
         assertEquals(listOf(LocalDate.parse("2026-10-05"), LocalDate.parse("2026-10-06")), history.map { it.day })
         assertEquals(Duration.ofMinutes(30), history.first().paid)
         assertEquals(Duration.ofMinutes(5), history.last().paid)

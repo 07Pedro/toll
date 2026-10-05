@@ -21,6 +21,12 @@ class FrontAppTimer(private val packageName: String, private val needed: Duratio
         return completed
     }
 
+    /** Time counted toward the next task, as of [at]. */
+    fun progress(at: Instant): Duration {
+        val running = since?.let { start -> if (at > start) Duration.between(start, at) else Duration.ZERO } ?: Duration.ZERO
+        return (accumulated + running).coerceAtMost(needed)
+    }
+
     /** When the next task completes if the app simply stays in front, or null if it isn't in front. */
     fun dueAt(): Instant? = since?.plus(needed.minus(accumulated))
 }
