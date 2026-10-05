@@ -1,5 +1,6 @@
 package com.petr.toll
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -7,6 +8,8 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Canvas
@@ -59,8 +62,10 @@ import com.petr.toll.service.TollAccessibilityService
 import com.petr.toll.session.TollRepository
 import com.petr.toll.ui.BarrierStripe
 import com.petr.toll.ui.LocalTollPalette
+import com.petr.toll.ui.ScreenPreviews
 import com.petr.toll.ui.TollTheme
 import com.petr.toll.ui.Walkthrough
+import com.petr.toll.ui.earn.PushupActivity
 import com.petr.toll.ui.home.HomeScreen
 import com.petr.toll.ui.home.SettingsScreen
 
@@ -69,7 +74,7 @@ class MainActivity : ComponentActivity() {
     private val repo by lazy { TollRepository.get(this) }
     private var resumes by mutableIntStateOf(0)
 
-    private enum class Page { HOME, SETTINGS, TEST }
+    private enum class Page { HOME, SETTINGS, TEST, PREVIEWS }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,12 +84,19 @@ class MainActivity : ComponentActivity() {
                 val home by repo.home.collectAsState()
                 val panelOn by repo.testMode.collectAsState()
                 var page by rememberSaveable { mutableStateOf(Page.HOME) }
-                BackHandler(enabled = page != Page.HOME) { page = Page.HOME }
+                val stepsPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+                    repo.refresh()
+                }
+                BackHandler(enabled = page != Page.HOME) {
+                    page = if (page == Page.PREVIEWS) Page.TEST else Page.HOME
+                }
                 when (page) {
                     Page.HOME -> HomeScreen(
                         state = home,
                         onStart = repo::start,
                         onQuickPass = repo::quickPass,
+                        onPushups = { startActivity(Intent(this@MainActivity, PushupActivity::class.java)) },
+                        onAllowSteps = { stepsPermission.launch(Manifest.permission.ACTIVITY_RECOGNITION) },
                         onTurnOn = { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
                         onSettings = { page = Page.SETTINGS },
                         onTestMode = { page = Page.TEST },
@@ -102,8 +114,10 @@ class MainActivity : ComponentActivity() {
                         refreshKey = resumes,
                         panelOn = panelOn,
                         onPanel = repo::setTestMode,
+                        onPreviews = { page = Page.PREVIEWS },
                         onBack = { page = Page.HOME },
                     )
+                    Page.PREVIEWS -> ScreenPreviews(onExit = { page = Page.TEST })
                 }
             }
         }
@@ -120,7 +134,13 @@ private const val INSTAGRAM = "com.instagram.android"
 
 /** Phase 0's walkthrough screen, kept for checking new Instagram screens. */
 @Composable
-private fun TestModeScreen(refreshKey: Int, panelOn: Boolean, onPanel: (Boolean) -> Unit, onBack: () -> Unit) {
+private fun TestModeScreen(
+    refreshKey: Int,
+    panelOn: Boolean,
+    onPanel: (Boolean) -> Unit,
+    onPreviews: () -> Unit,
+    onBack: () -> Unit,
+) {
     val context = LocalContext.current
     val p = LocalTollPalette.current
     val serviceOn = remember(refreshKey) { isServiceEnabled(context) }
@@ -138,6 +158,16 @@ private fun TestModeScreen(refreshKey: Int, panelOn: Boolean, onPanel: (Boolean)
     ) {
         Header(onBack)
         PanelCard(panelOn, onPanel)
+        Card {
+            Text("Screen previews", style = MaterialTheme.typography.titleMedium, color = LocalTollPalette.current.ink)
+            Text(
+                "Every Toll screen with sample numbers: the gate, holds, typing, the timer, home and settings. " +
+                    "Nothing is counted or charged.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = LocalTollPalette.current.muted,
+            )
+            PrimaryButton("Show previews", onPreviews)
+        }
         StatusCard(
             serviceOn = serviceOn,
             instagramInstalled = instagram != null,
@@ -177,8 +207,8 @@ private fun Header(onBack: () -> Unit) {
                 .clip(RoundedCornerShape(2.dp)),
         )
         Text(
-            "This version only watches Instagram and labels each screen, so we can check Toll recognises them. " +
-                "Nothing is blocked or counted yet.",
+            "For teaching Toll new Instagram screens: a panel labels each screen, and Save records it. " +
+                "The panel never blocks or charges anything.",
             style = MaterialTheme.typography.bodyMedium,
             color = p.muted,
         )

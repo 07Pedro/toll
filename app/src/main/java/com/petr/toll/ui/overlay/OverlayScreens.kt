@@ -55,6 +55,7 @@ import com.petr.toll.rules.Tier
 import com.petr.toll.ui.BarrierStripe
 import com.petr.toll.ui.LadderMeter
 import com.petr.toll.ui.LadderRamp
+import com.petr.toll.ui.LightPalette
 import com.petr.toll.ui.LocalTollPalette
 import com.petr.toll.ui.Overpass
 import com.petr.toll.ui.clock
@@ -97,14 +98,15 @@ fun GateScreen(
                 Text(reason(decision, gate), style = MaterialTheme.typography.bodyMedium, color = p.muted)
             }
             UsageBlock(decision)
-            Spacer(Modifier.weight(1f))
+            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) { PriceDetail(gate.price) }
             Text("Free, no toll", style = MaterialTheme.typography.labelSmall, color = p.muted)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 FreeButton("Messages", onMessages, Modifier.weight(1f))
                 FreeButton("Stories", onStories, Modifier.weight(1f))
             }
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                BigButton(payLabel(gate.price), onPay, container = p.barrier, content = Color.White)
+                // The light theme's deeper red keeps white text readable (about 5:1).
+                BigButton(payLabel(gate.price), onPay, container = LightPalette.barrier, content = Color.White)
                 Text(
                     "Coming back within 10 minutes costs ${gate.ifBackSoon.summary()}.",
                     style = MaterialTheme.typography.bodyMedium,
@@ -114,6 +116,40 @@ fun GateScreen(
                 )
             }
             QuietButton("Leave Instagram", onLeave)
+        }
+    }
+}
+
+/** What paying involves, so the choice is concrete before pressing Pay. */
+@Composable
+private fun PriceDetail(price: Price) {
+    val p = LocalTollPalette.current
+    when (price) {
+        Price.None -> Unit
+        is Price.Typing -> Column(
+            Modifier
+                .fillMaxWidth()
+                .border(1.dp, p.line, RoundedCornerShape(16.dp))
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text("YOU'LL TYPE", style = MaterialTheme.typography.labelSmall, color = p.muted)
+            Text(price.sentence, style = MaterialTheme.typography.titleMedium, color = p.ink)
+        }
+        is Price.QrAndHold -> Column(
+            Modifier
+                .fillMaxWidth()
+                .border(1.dp, p.line, RoundedCornerShape(16.dp))
+                .padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Text("YOU'LL HOLD", style = MaterialTheme.typography.labelSmall, color = p.muted)
+            Text(
+                "Your thumb on a slowly moving dot for ${minutes(price.hold)}. Off it for more than 10 seconds and " +
+                    "it starts over. Each hold today is longer than the last.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = p.ink,
+            )
         }
     }
 }

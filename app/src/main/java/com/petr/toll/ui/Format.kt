@@ -1,6 +1,7 @@
 package com.petr.toll.ui
 
 import com.petr.toll.rules.Price
+import com.petr.toll.rules.Sentences
 import java.time.Duration
 
 /** "45 min", "3 h", "2 h 14 min". */
@@ -24,6 +25,6 @@ fun Duration.clock(): String {
 /** How a price reads in a sentence: "a 4-minute hold". */
 fun Price.summary(): String = when (this) {
     Price.None -> "nothing"
-    is Price.Typing -> "typing a sentence"
+    is Price.Typing -> if (Sentences.isLong(sentence)) "typing a longer sentence" else "typing a sentence"
     is Price.QrAndHold -> "a ${hold.toMinutes()}-minute hold"
 }

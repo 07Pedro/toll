@@ -66,6 +66,8 @@ fun HomeScreen(
     state: HomeState,
     onStart: () -> Unit,
     onQuickPass: () -> Unit,
+    onPushups: () -> Unit,
+    onAllowSteps: () -> Unit,
     onTurnOn: () -> Unit,
     onSettings: () -> Unit,
     onTestMode: () -> Unit,
@@ -93,6 +95,7 @@ fun HomeScreen(
         } else {
             TodayCard(state)
             QuickPassCard(state, onQuickPass)
+            EarnCard(state, onPushups, onAllowSteps)
             WeekCard(state)
             HistoryCard(state)
         }
@@ -217,6 +220,84 @@ private fun QuickPassCard(state: HomeState, onQuickPass: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = p.muted,
                 )
+            }
+        }
+    }
+}
+
+/** Optional tasks that add time to today's limit, up to a daily cap. */
+@Composable
+private fun EarnCard(state: HomeState, onPushups: () -> Unit, onAllowSteps: () -> Unit) {
+    val p = LocalTollPalette.current
+    val s = state.settings
+    val earned = state.today?.earnedToday ?: Duration.ZERO
+    val left = state.today?.earnLeft ?: s.earnCapPerDay
+    val open = left > Duration.ZERO
+    val e = state.earn
+    Card {
+        Eyebrow("EARN TIME")
+        Row(verticalAlignment = Alignment.Bottom) {
+            Text("+${earned.short()}", fontFamily = Overpass, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp, color = p.go)
+            Text(
+                "  of ${s.earnCapPerDay.short()} earned today",
+                style = MaterialTheme.typography.bodyLarge,
+                color = p.muted,
+                modifier = Modifier.padding(bottom = 3.dp),
+            )
+        }
+        Text(
+            if (open) "Each task adds ${s.earnPerTask.short()} to today's limit." else "That's the most for today. Tasks count again tomorrow.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = p.muted,
+        )
+        TaskRow(
+            title = "Push-ups",
+            detail = "20, counted by the phone on the floor",
+            progress = null,
+            action = if (open) "Start" to onPushups else null,
+        )
+        TaskRow(
+            title = "Walk",
+            detail = if (e.stepsAllowed) "${e.steps} of ${e.stepsGoal} steps" else "Needs step counting switched on",
+            progress = if (e.stepsAllowed) e.steps.toFloat() / e.stepsGoal.coerceAtLeast(1) else null,
+            action = if (!e.stepsAllowed) "Turn on" to onAllowSteps else null,
+        )
+        TaskRow(
+            title = "Duolingo",
+            detail = "${e.duolingo.toMinutes()} of ${e.duolingoGoal.toMinutes()} min in the app. Counts by itself",
+            progress = e.duolingo.toMillis().toFloat() / e.duolingoGoal.toMillis().coerceAtLeast(1),
+            action = null,
+        )
+    }
+}
+
+@Composable
+private fun TaskRow(title: String, detail: String, progress: Float?, action: Pair<String, () -> Unit>?) {
+    val p = LocalTollPalette.current
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, color = p.ink)
+            Text(detail, style = MaterialTheme.typography.bodyMedium, color = p.muted)
+            if (progress != null) {
+                Box(Modifier.fillMaxWidth().height(6.dp).background(p.line, RoundedCornerShape(3.dp))) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth(progress.coerceIn(0f, 1f))
+                            .height(6.dp)
+                            .background(p.go, RoundedCornerShape(3.dp)),
+                    )
+                }
+            }
+        }
+        if (action != null) {
+            Box(
+                Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.5.dp, p.ink, RoundedCornerShape(12.dp))
+                    .clickable(onClick = action.second)
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+            ) {
+                Text(action.first, style = MaterialTheme.typography.labelLarge, color = p.ink)
             }
         }
     }

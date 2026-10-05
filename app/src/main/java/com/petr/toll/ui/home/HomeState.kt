@@ -14,6 +14,16 @@ data class DaySummary(
     val opens: Int,
 )
 
+/** Progress toward the next earn-time reward from walking and Duolingo. Push-ups are counted on their own screen. */
+data class EarnState(
+    /** Step counting needs the activity-recognition permission. */
+    val stepsAllowed: Boolean,
+    val steps: Int,
+    val stepsGoal: Int,
+    val duolingo: Duration,
+    val duolingoGoal: Duration,
+)
+
 /** Everything the home screen shows. Filled by the repository; the screen only reads it. */
 data class HomeState(
     /** Toll's accessibility service is switched on. */
@@ -28,4 +38,5 @@ data class HomeState(
     /** Oldest first, up to the last 14 days including today. Days without Instagram may be missing. */
     val history: List<DaySummary>,
     val pending: List<PendingChange>,
+    val earn: EarnState,
 )

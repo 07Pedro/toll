@@ -43,7 +43,12 @@ object Sentences {
     fun short(openNumber: Int): String = "Opening Instagram for the ${ordinal(openNumber)} time today."
 
     fun long(openNumber: Int, paidToday: Duration): String =
-        "${short(openNumber)} I have already spent ${spoken(paidToday)} on it."
+        "${short(openNumber)} $LONG_MARK ${spoken(paidToday)} on it."
+
+    /** True for a [long] sentence, the 75%-and-up price. */
+    fun isLong(sentence: String): Boolean = LONG_MARK in sentence
+
+    private const val LONG_MARK = "I have already spent"
 
     fun ordinal(n: Int): String {
         val suffix = if (n % 100 in 11..13) "th" else when (n % 10) {
