@@ -133,8 +133,8 @@ Toll is a native Kotlin app built around one **AccessibilityService**. The servi
 |---|---|---|
 | Language, UI | Kotlin, Jetpack Compose | Standard Android today; Compose also draws the overlay windows. |
 | SDK levels | `targetSdk` = latest stable; `minSdk 33` | One device: Petr's Pixel 7, now on Android 17. `minSdk 33` (the version it shipped with) also allows testing on older emulator images. |
-| Storage | Room (history), DataStore (settings, pending changes) | On-device, no account. |
-| QR scanning | CameraX + ZXing | Works offline, no Google Play Services dependency. |
+| Storage | JSON files in app storage: an append-only event log, settings, step progress | On-device, no account; replaying the log rebuilds the engine's state, so there's no database to migrate. |
+| Barcode scanning (Phase 2) | CameraX + ZXing (EAN-13/EAN-8/UPC) | Reads the barcode on an everyday item; works offline, no Google Play Services dependency. |
 | Tests | JUnit on the JVM | Rules engine and classifier are tested without a phone. |
 | Package | `com.petr.toll` | Sideloaded only. |
 
@@ -171,7 +171,7 @@ TollAccessibilityService
   └─ Guard               Phase 2: blocks Toll's own Settings pages
           │
           ▼
-Room + DataStore  ◄──  Toll app (home, quick pass, settings, onboarding, typing + QR challenges)
+Event log + settings  ◄──  Toll app (home, quick pass, settings, earn time, typing + barcode challenges)
 ```
 **Service setup:** listens to window-state, window-content and scroll events; reports view IDs; sees all interactive windows. No package filter, because it must notice when Instagram leaves the screen; events from unrelated apps are dropped immediately. A 200 ms event throttle and direct view-ID lookups (instead of walking the whole tree) keep battery use low. Screen on/off comes from system broadcasts.
 
@@ -210,9 +210,9 @@ Pure Kotlin with no Android code: `limitFor(day)`, `tier(paidMinutes, limit)`, `
 - **Corner timer:** small overlay that ignores touches.
 - **"Still here?":** full-screen overlay every 5 min of paid time in tier 3.
 - **Moving-dot hold:** full-screen overlay that keeps the screen on. The countdown runs only while the thumb is on the dot. Lifting it or slipping off pauses; more than 10 s off the dot resets it to the start.
-- **Typing and QR challenges** run in a Toll activity opened over Instagram. The keyboard and camera work reliably in an activity, and Android lets apps with an active accessibility service open activities from the background.
+- **Typing and barcode challenges** run in a Toll activity opened over Instagram. The keyboard and camera work reliably in an activity, and Android lets apps with an active accessibility service open activities from the background.
 - **No pasting:** suggestions off, no copy/paste menu, and any single edit that inserts more than one word is rejected. That blocks paste and autofill but still allows swipe typing.
-- **QR code:** onboarding generates a random secret, shows it as a QR code and saves a PNG to print. Only that code is accepted. Known, accepted bypass: a photo of the code on another screen.
+- **Barcode (Phase 2):** during setup Petr scans the barcode of an everyday item kept in another room (shampoo, a cereal box), and Toll stores its value; a product barcode isn't secret, so it isn't hashed. Over the limit, each pass needs walking there and scanning that same item again; any other barcode is rejected. Known, accepted bypasses: a photo of the barcode, or a second copy of the product. No printer needed.
 - **Quick pass:** Toll home's button stores `quickPassUntil = now + 3 min`, uses up one of today's passes, and opens Instagram with its launch intent (needs a `<queries>` entry for `com.instagram.android` in the manifest). While a pass is active, the gate, challenges, "Still here?" and greyscale are all off, and a countdown replaces the corner timer (red for the last 30 s). The pass runs on wall-clock time from launch. When it expires, the gate appears straight away at the normal price. Paid minutes keep counting, and the visit isn't recorded as an open. Number and length of passes (default 3 × 3 min) are settings.
 - **Greyscale (Phase 2):** Toll switches Android's built-in colour correction to monochrome (`accessibility_display_daltonizer_enabled=1`, `accessibility_display_daltonizer=0`) while Instagram is in front in tier 3+. It restores Petr's previous values when Instagram leaves and again whenever the service starts, so a crash can't leave the phone grey.
 
@@ -227,16 +227,18 @@ Pure Kotlin with no Android code: `limitFor(day)`, `tier(paidMinutes, limit)`, `
 - **Instagram Lite** probably exposes little to accessibility, so all Lite time counts as paid; DMs stay free in the main app. To verify in Phase 2.
 - **No browser coverage:** Petr doesn't use Instagram in a browser (Product decision).
 ### Data model
-| Store | Contents |
-|---|---|
-| `visit` table | start/end time, day, reached paid?, tier charged, reflex?, quick pass?, pass budget used |
-| `segment` table | visit, start/end time, app, screen, paid?, opened from DM? |
-| `toll` table | time, day, kind (typing / hold / QR / still-here), pass number, required seconds, completed? |
-| `classifier_miss` table | time, Instagram version, dump file |
-| `guard_event` table | time, page (App info / accessibility / uninstall / Advanced Protection), outcome (sent back / continued) |
-| DataStore | week-1 limits, taper kind + amount, floor, day start hour, start date, quick pass count + length (3 × 3 min), QR secret, pending loosening changes with their effective time, turn-off request time, Petr's original colour settings |
+As built in Phase 1 (2026-10-05), in the app's private storage:
 
-Today's paid minutes, tier, limit and passes left are always computed from these, never stored. Size: well under 1 MB a year.
+| File | Contents |
+|---|---|
+| `events/<toll day>.jsonl` | Append-only log of everything the engine was told: screen kind changes, screen on/off, tolls paid, "Still here?" dismissed, quick passes, time earned. Ticks aren't logged. Replayed with `TollEngine.replay` on every start. |
+| `settings.json` | Settings in force (limits, taper, floor, day start, quick passes, earn per task and cap) plus loosening changes waiting out their 24 h |
+| `enforcing` | Exists once Petr pressed Start (holds when) |
+| `steps.json` | Step counter baseline and today's progress |
+| `probe_off` | Test mode switched off |
+| `dumps/` | Probe screen dumps (test mode only) |
+
+Today's paid minutes, tier, limit, visits and passes left are always computed by replaying the log, never stored, and the history chart replays each past day's log. Phase 2 adds the enrolled barcode value, the turn-off request time and Petr's original colour settings to `settings.json`. Size: well under 1 MB a year.
 
 ### Phase 0 probe: concrete spec
 - **Day-one shortcut, before any app exists:** once the phone is connected, `adb.exe shell uiautomator dump` captures the current screen's full view tree with resource IDs. Petr opens each screen and a Claude session pulls a dump, stripping all text first so no message content is read. It may fail on constantly animating screens such as Reels ("could not get idle state"), which is why the probe app below is still needed.
@@ -295,7 +297,7 @@ Today's paid minutes, tier, limit and passes left are always computed from these
 1. Pull the 6 dumps. Add Saved rules (collections, grid, saved-posts list as a free origin), a stronger post item key, fixtures and replay tests.
 2. First real use after Start: watch gate latency end to end (event → overlay), visits and charging in the log (`adb logcat -s TollProbe TollSession`).
 3. Phase 1.5 (Product decided): earn time. Duolingo time in front is measured in the service; push-ups (proximity) and steps (step counter, needs ACTIVITY_RECOGNITION) in a small foreground component; logged as `TimeEarned`.
-4. Phase 2 as planned: greyscale (adb grant), QR, self-protection, Instagram Lite.
+4. Phase 2 as planned: greyscale (adb grant), barcode pass (enrol + scan), self-protection, Instagram Lite.
 
 **Working notes:** build with `cmd.exe /c build.cmd <task>`; `adb.exe` at `/mnt/c/Users/Petr/AppData/Local/Android/Sdk/platform-tools/`; git in WSL, pushed to a private GitHub repo with `gh` as the credential helper. Each session commits its own files, and only pushes green commits that don't depend on the other's uncommitted files. Raw dumps stay in `toll/dumps/` (git-ignored); fixtures are scrubbed.
 
