@@ -266,28 +266,32 @@ Today's paid minutes, tier, limit and passes left are always computed from these
 | Battery drain | Low | Throttled events, direct ID lookups; check battery stats in week 1 |
 | Changing the phone's clock to reset the day | Low | Both clocks compared |
 
-### Where Tech left off (2026-10-04, 22:30)
-**On the phone:** Toll `0.0.1-probe`, built 22:28:33. The accessibility service is on (gesture capability included, capabilities=33). one sec's accessibility service is also still on. The phone was unplugged afterwards.
+### Where Tech left off (2026-10-05, 19:20)
+**Phase 0 is complete.** The button test passed on 2026-10-05: *Open messages* clicks `direct_tab`; *Open a story* always taps the bubble like a finger, because Instagram sometimes accepts the accessibility click and then does nothing. Back-and-retry works from inside a story.
 
-**Done in Phase 0:** see "Phase 0 results" above. Short version: the classifier works on Instagram 449, DM reel → swipe → paid works, and 70/70 JVM tests pass (classifier 28, replay 4, rules 36, other 2).
+**Phase 1 core is built and on the phone (not yet started):**
+- **Fast classifier:** rules use exact view IDs; live, each is one `findAccessibilityNodeInfosByViewId` (`LiveScreenQuery`); in tests, a `SnapshotQuery` answers the same rules from fixtures. The order is DM thread, story, then bottom tabs (a single `tab_bar` lookup skips them all when the bar is hidden), then the rest. Measured on the phone: median ~0.1 s per screen read, at most ~0.4 s (was 0.16–1.6 s walking the tree). Android 13 prefetching alone barely helped.
+- **New free rules (Product, 2026-10-05):** `SEARCH` (account results) is free and split from the paid Explore grid. Profiles are free, and origins like chats: a single item opened from a chat, profile or Saved is free until the item changes. `SAVED` exists, but its rule is still missing (see next steps).
+- **Session:** `SessionTracker` (classifier → `ScreenKind`), `TollCore` (settings, Start, engine session, restart replay, history; JVM-tested) and `TollRepository` (thread, ticks, `StateFlow<HomeState>`, quick-pass launch). Files: `files/events/<day>.jsonl` (append-only log, replayed on start), `files/settings.json`, `files/enforcing`. A clock anchored to the monotonic clock prevents skipping days by changing the phone's time.
+- **Service:** draws `TollOverlays` from each decision while Instagram is in front. Free shortcuts tap through the gate (`touchThrough`). Screen on/off comes from a receiver. Toll's typing challenge counts as free time inside the visit. Test mode (the Phase 0 panel) is on by default.
+- **Nothing is charged until Petr presses "Start week 1 today".** Before that, no events reach the engine.
+- 92/92 JVM tests pass; everything is pushed to the private GitHub repo.
 
-**Installed but not yet verified on the phone:**
-1. *Open a story* taps the bubble like a finger (accessibility clicks are refused there). *Open messages* already worked. Retest: feed at the top → Open a story → back → Open messages. The log should show `open first story: Opened first story`.
-2. Back-and-retry when a shortcut is pressed on the wrong screen.
-3. Android 13 prefetching for whole-tree reads. Compare the `slow tick` lines against the baseline: typically 150–600 ms, DM inbox 1.1–1.6 s.
+**Saved/profiles walkthrough (2026-10-05, 6 dumps still on the phone, not yet pulled):** the log shows:
+- Saved screens: UNKNOWN.
+- A post from a profile: free; swipe onward: paid.
+- A post's item key is just the author, so it only changed because a second post scrolled in. It needs caption/timestamp IDs.
+- Scrolling a saved item's list was classified as FEED (paid, right result for the wrong reason).
 
-**Phase 1 next steps (Tech):**
-1. **Fast classifier:** turn the confirmed fragments in `signatures.json` into exact view IDs and look them up with `findAccessibilityNodeInfosByViewId`, in rule order, stopping at the first match, with prefetching. No tree walks outside the debug probe. Target: gate within ~300 ms of landing on a paid screen. Measure it.
-2. **Session tracker:** turn classifier + `OriginTracker` output into the rules engine's `TollEvent.Screen(at, PAID|FREE|UNKNOWN|OUTSIDE)`. Send OUTSIDE when Instagram leaves the front, plus ScreenOff/ScreenOn from broadcasts. Add `TransparentModalActivity` as a second "opened from a DM" signal. Schedule a Tick at `decision.nextChangeAt` instead of polling.
-3. **Persistence:** store the engine's events (Room) and settings and pending changes (DataStore); rebuild state with `engine.replay` on service start.
-4. **Enforcement UI:** gate, corner timer, "Still here?", moving-dot hold, typing activity, quick-pass launch (`<queries>` is already in the manifest). Ownership as in Phase 0: petr-6e writes the UI, petr-c6 wires it to the service. The gate's free shortcuts reuse `Navigator` (click, then gesture-tap fallback; hide the gate during the tap).
-5. Keep the probe (label, dumps, walkthrough) as a debug-only mode for re-checking after Instagram updates.
+**Next (Tech):**
+1. Pull the 6 dumps. Add Saved rules (collections, grid, saved-posts list as a free origin), a stronger post item key, fixtures and replay tests.
+2. First real use after Start: watch gate latency end to end (event → overlay), visits and charging in the log (`adb logcat -s TollProbe TollSession`).
+3. Phase 1.5 (Product decided): earn time. Duolingo time in front is measured in the service; push-ups (proximity) and steps (step counter, needs ACTIVITY_RECOGNITION) in a small foreground component; logged as `TimeEarned`.
+4. Phase 2 as planned: greyscale (adb grant), QR, self-protection, Instagram Lite.
 
-**Working notes:**
-- Build and install from WSL with `cmd.exe /c build.cmd <task>` (see README). Only petr-c6 runs Gradle and adb.
-- Raw dumps are in `toll/dumps/` (git-ignored; they contain short usernames). Delete them once no longer needed. Scrubbed fixtures live in `app/src/test/resources/fixtures/`.
-- There's no version control yet. Suggest asking Petr whether to `git init` and make a first commit before Phase 1.
-- File ownership: petr-6e has `rules/`, `MainActivity.kt`, `probe/ProbeOverlay.kt`, `ui/`, `res/font/`, `res/drawable/` and `res/mipmap-anydpi/` (icon). petr-c6 has everything else, plus Gradle and adb.
+**Working notes:** build with `cmd.exe /c build.cmd <task>`; `adb.exe` at `/mnt/c/Users/Petr/AppData/Local/Android/Sdk/platform-tools/`; git in WSL, pushed to a private GitHub repo with `gh` as the credential helper. Each session commits its own files, and only pushes green commits that don't depend on the other's uncommitted files. Raw dumps stay in `toll/dumps/` (git-ignored); fixtures are scrubbed.
+
+**File ownership:** the Product/UI session owns `rules/`, `MainActivity.kt`, `probe/ProbeOverlay.kt`, `ui/` (including `ui/home/` and `ui/overlay/`), `res/font/`, `res/drawable/` and `res/mipmap-anydpi/`. The Tech session owns everything else (Gradle, manifest, `res/xml`, `res/values`, `signatures.json`, `classifier/`, `probe/` except the overlay, `service/`, `session/`, their tests and the fixtures), and runs Gradle and adb. Session names change between runs (petr-c6 → petr-3a for Tech; petr-6e → petr-53 for Product); go by role.
 
 ### What Tech still needs
-From Product: the corner-timer answer (always visible on paid screens, or only from 50%). It changes only `Decision.showTimer`, not the architecture.
+Nothing from Product right now. The Saved dumps come off the phone when it's reconnected.
