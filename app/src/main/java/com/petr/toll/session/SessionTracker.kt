@@ -18,6 +18,9 @@ class SessionTracker {
     private val origin = OriginTracker()
     private var last: ScreenKind? = null
 
+    /** The kind last reported, e.g. for the probe label. */
+    val current: ScreenKind? get() = last
+
     fun instagram(screen: Screen, itemKey: String?): ScreenKind? = emit(
         when (origin.update(screen, itemKey)) {
             Access.FREE -> ScreenKind.FREE
@@ -29,6 +32,11 @@ class SessionTracker {
     fun tollChallenge(): ScreenKind? = emit(ScreenKind.FREE)
 
     fun outside(): ScreenKind? = emit(ScreenKind.OUTSIDE)
+
+    /** Forget the last kind (e.g. after the screen turned off), so the next read is sent even if it's the same. */
+    fun reset() {
+        last = null
+    }
 
     private fun emit(kind: ScreenKind): ScreenKind? = if (kind == last) null else kind.also { last = it }
 }

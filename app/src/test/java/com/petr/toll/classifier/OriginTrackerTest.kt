@@ -54,6 +54,22 @@ class OriginTrackerTest {
     }
 
     @Test
+    fun `profiles and Saved are free origins, like a chat`() {
+        assertEquals(FREE, see(Screen.PROFILE))
+        assertEquals(FREE, see(Screen.POST, "p"))
+        assertEquals(PAID, see(Screen.POST, "q"))
+        assertEquals(FREE, see(Screen.SAVED))
+        assertEquals(FREE, see(Screen.REELS_VIEWER, "r"))
+        assertEquals(PAID, see(Screen.REELS_VIEWER, "s"))
+    }
+
+    @Test
+    fun `search results are free but don't make what's opened from them free`() {
+        assertEquals(FREE, see(Screen.SEARCH))
+        assertEquals(PAID, see(Screen.REELS_VIEWER, "a"))
+    }
+
+    @Test
     fun `unknown transition frames keep the DM context`() {
         see(Screen.DM_THREAD)
         assertEquals(UNKNOWN, see(Screen.UNKNOWN))

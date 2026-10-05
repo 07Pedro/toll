@@ -5,21 +5,21 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
-/** Engine behaviour against a small fixed rule set; the real seeds are checked in [SignaturesAssetTest]. */
+/** Engine behaviour against a small fixed rule set; the real rules are checked in [SignaturesAssetTest]. */
 class ScreenClassifierTest {
 
     private val signatures = Signatures.parse(
         """
         {
           "rules": [
-            { "id": "thread", "screen": "DM_THREAD", "ids": [["thread_composer"]] },
-            { "id": "post", "screen": "POST", "ids": [["row_feed_photo"], ["button_back"]] },
-            { "id": "not_feed", "screen": "EXPLORE", "ids": [["grid"]], "notIds": ["tab_bar_hidden"] },
-            { "id": "home", "screen": "FEED", "selectedTab": ["Home"] },
+            { "id": "thread", "screen": "DM_THREAD", "ids": [["row_thread_composer_edittext"]] },
+            { "id": "post", "screen": "POST", "ids": [["row_feed_photo_profile_name"], ["action_bar_button_back"]] },
+            { "id": "grid", "screen": "EXPLORE", "ids": [["explore_grid"]], "notIds": ["tab_bar_hidden"] },
             { "id": "dialog", "screen": "COMMENTS", "windowClass": ["CommentsDialog"] },
-            { "id": "reels_tab", "screen": "REELS_VIEWER", "tabIds": ["clips_tab"] }
+            { "id": "reels_tab", "screen": "REELS_VIEWER", "tabIds": ["clips_tab"] },
+            { "id": "home_tab", "screen": "FEED", "tabIds": ["feed_tab"] }
           ],
-          "itemKeyIds": ["author"]
+          "itemKeyIds": ["clips_author_username"]
         }
         """.trimIndent(),
     )
@@ -28,16 +28,27 @@ class ScreenClassifierTest {
     private fun snapshot(vararg nodes: UiNode, windowClass: String? = null) =
         ScreenSnapshot("com.instagram.android", windowClass, UiNode(children = nodes.toList()))
 
+    private fun tab(id: String, selected: Boolean = false) =
+        UiNode(viewId = id, children = listOf(UiNode(viewId = "tab_icon", selected = selected)))
+
     @Test
     fun `first matching rule wins`() {
-        val c = classifier.classify(snapshot(UiNode(viewId = "row_thread_composer_edittext"), tab("Home", selected = true)))
+        val c = classifier.classify(snapshot(UiNode(viewId = "row_thread_composer_edittext"), tab("feed_tab", selected = true)))
         assertEquals(Screen.DM_THREAD, c.screen)
         assertEquals("thread", c.ruleId)
     }
 
     @Test
+    fun `view IDs match exactly, not as fragments`() {
+        val c = classifier.classify(snapshot(UiNode(viewId = "row_thread_composer_edittext_container")))
+        assertEquals(Screen.UNKNOWN, c.screen)
+    }
+
+    @Test
     fun `invisible nodes are ignored`() {
-        val c = classifier.classify(snapshot(UiNode(viewId = "thread_composer", visible = false), tab("Home", selected = true)))
+        val c = classifier.classify(
+            snapshot(UiNode(viewId = "row_thread_composer_edittext", visible = false), tab("feed_tab", selected = true)),
+        )
         assertEquals(Screen.FEED, c.screen)
     }
 
@@ -56,30 +67,19 @@ class ScreenClassifierTest {
     }
 
     @Test
-    fun `selected tab matches case-insensitively and ignores state suffix`() {
-        val c = classifier.classify(snapshot(tab("home, selected", selected = true), tab("Reels")))
-        assertEquals(Screen.FEED, c.screen)
-    }
-
-    @Test
     fun `a tab counts as selected when only its icon is selected`() {
-        val reels = UiNode(viewId = "clips_tab", desc = "Reels", children = listOf(UiNode(viewId = "tab_icon", selected = true)))
-        val c = classifier.classify(snapshot(UiNode(viewId = "feed_tab", desc = "Home"), reels))
+        val c = classifier.classify(snapshot(tab("feed_tab"), tab("clips_tab", selected = true)))
         assertEquals(Screen.REELS_VIEWER, c.screen)
         assertEquals("reels_tab", c.ruleId)
         assertEquals("clips_tab", c.selectedTab)
     }
 
     @Test
-    fun `selected marquee text is not a tab`() {
+    fun `selected nodes outside the tabs are not a tab`() {
         val song = UiNode(viewId = "pog_music_note_song_title_text", desc = "In The End", selected = true)
-        val c = classifier.classify(snapshot(song, UiNode(viewId = "direct_tab", desc = "Message")))
+        val c = classifier.classify(snapshot(song, tab("feed_tab")))
+        assertEquals(Screen.UNKNOWN, c.screen)
         assertNull(c.selectedTab)
-    }
-
-    @Test
-    fun `unselected tab does not count`() {
-        assertEquals(Screen.UNKNOWN, classifier.classify(snapshot(tab("Home"))).screen)
     }
 
     @Test
@@ -96,10 +96,20 @@ class ScreenClassifierTest {
     }
 
     @Test
+    fun `only the lookups a decision needs are made`() {
+        val query = CountingQuery(SnapshotQuery(snapshot(UiNode(viewId = "row_thread_composer_edittext"))))
+        classifier.classify(query)
+        assertEquals(listOf("row_thread_composer_edittext"), query.asked)
+    }
+
+    @Test
     fun `item key changes with the visible author and ignores hidden pages`() {
         val first = classifier.itemKey(snapshot(UiNode(viewId = "clips_author_username", text = "anna")))
         val same = classifier.itemKey(
-            snapshot(UiNode(viewId = "clips_author_username", text = "anna"), UiNode(viewId = "clips_author_username", text = "ben", visible = false)),
+            snapshot(
+                UiNode(viewId = "clips_author_username", text = "anna"),
+                UiNode(viewId = "clips_author_username", text = "ben", visible = false),
+            ),
         )
         val next = classifier.itemKey(snapshot(UiNode(viewId = "clips_author_username", text = "ben")))
         assertEquals(first, same)
@@ -115,9 +125,16 @@ class ScreenClassifierTest {
     @Test(expected = IllegalArgumentException::class)
     fun `duplicate rule ids are rejected`() {
         Signatures.parse(
-            """{ "rules": [ { "id": "a", "screen": "FEED", "selectedTab": ["Home"] }, { "id": "a", "screen": "PROFILE", "selectedTab": ["Profile"] } ] }""",
+            """{ "rules": [ { "id": "a", "screen": "FEED", "tabIds": ["feed_tab"] }, { "id": "a", "screen": "PROFILE", "tabIds": ["profile_tab"] } ] }""",
         )
     }
 
-    private fun tab(desc: String, selected: Boolean = false) = UiNode(viewId = "tab", desc = desc, selected = selected)
+    private class CountingQuery(private val inner: ScreenQuery) : ScreenQuery by inner {
+        val asked = mutableListOf<String>()
+
+        override fun hasVisible(viewId: String): Boolean {
+            asked += viewId
+            return inner.hasVisible(viewId)
+        }
+    }
 }

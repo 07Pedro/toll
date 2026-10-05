@@ -1,6 +1,10 @@
 package com.petr.toll.classifier
 
-/** Instagram screens Toll tells apart. Whether a viewer screen is free depends on where it was opened from; see [OriginTracker]. */
+/**
+ * Instagram screens Toll tells apart. Places Petr goes on purpose (messages, profiles, Saved, search results, stories) are
+ * free; endless streams (feed, Reels tab, Explore grid) are paid. A viewer screen depends on where it was opened from;
+ * see [OriginTracker].
+ */
 enum class Screen(val label: String) {
     DM_INBOX("DM inbox"),
     DM_THREAD("DM thread"),
@@ -11,6 +15,8 @@ enum class Screen(val label: String) {
     FEED("Feed"),
     EXPLORE("Explore / search"),
     PROFILE("Profile"),
+    SEARCH("Search results"),
+    SAVED("Saved"),
     UNKNOWN("Unknown"),
 }
 

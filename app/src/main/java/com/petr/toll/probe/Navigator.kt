@@ -68,6 +68,12 @@ class Navigator(private val navigation: Navigation) {
         return NavResult.Tap(rect.exactCenterX(), rect.exactCenterY(), what)
     }
 
+    /** Taps Instagram's Home tab, which scrolls the feed back to the top (where the stories bar is). */
+    fun scrollFeedToTop(root: AccessibilityNodeInfo): Boolean {
+        val home = root.findAccessibilityNodeInfosByViewId("${root.packageName}:id/$FEED_TAB").firstOrNull { it.isVisibleToUser }
+        return home?.performAction(AccessibilityNodeInfo.ACTION_CLICK) == true
+    }
+
     /** View IDs, child counts and tops of visible scrolling containers, to find the tray's real ID in the log. */
     private fun scrollables(root: AccessibilityNodeInfo): String {
         val rect = Rect()
@@ -85,3 +91,4 @@ class Navigator(private val navigation: Navigation) {
 private const val TAG = "TollProbe"
 private const val STORY = "story"
 private const val AVATAR = "avatar_image_view"
+private const val FEED_TAB = "feed_tab"
